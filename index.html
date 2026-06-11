@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>牢大快跑</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #000; font-family: 'Arial', sans-serif; }
+    #gameCanvas { display: block; width: 100vw; height: 100vh; }
+    #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    
+    #title { 
+        position: absolute; top: 20%; left: 50%; transform: translateX(-50%); 
+        font-size: 64px; font-weight: bold; color: #fff; 
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); text-align: center; 
+    }
+    #subtitle { 
+        position: absolute; top: 40%; left: 50%; transform: translateX(-50%); 
+        font-size: 28px; color: #fff; 
+        animation: blink 1s ease-in-out infinite; 
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); 
+    }
+    
+    /* 主场景 HUD - 左下角，白字蓝边 */
+    #hud {
+        display: none;
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        color: white;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-family: monospace;
+        pointer-events: none;
+        backdrop-filter: blur(4px);
+        border-left: 3px solid #00aaff;
+    }
+    
+    /* 跑酷场景 HUD - 右下角，白色字体金边 */
+    #run_hud {
+        display: none;
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        color: white;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-family: monospace;
+        letter-spacing: 1px;
+        pointer-events: none;
+        backdrop-filter: blur(4px);
+        border-left: 3px solid #ffaa00;
+    }
+    
+    @keyframes blink { 
+        0%, 100% { opacity: 1; } 
+        50% { opacity: 0.3; } 
+    }
+</style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <div id="title">牢大快跑</div>
+        <div id="subtitle">按下空格键开始</div>
+        <div id="hud">
+            <div>Shift - 冲刺</div>
+            <div>空格 - 跳跃</div>
+            <div>WASD - 移动</div>
+        </div>
+        <div id="run_hud">
+            <div>Shift - 冲刺</div>
+            <div>Ctrl/↓ - 滑铲</div>
+            <div>空格/↑ - 跳跃</div>
+            <div>← → - 切换跑道</div>
+        </div>
+    </div>
+    <script src="js/three.min.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <script src="js/Utils.js"></script>
+    <script src="js/Camera.js"></script>
+    <script src="js/Player.js"></script>
+    <script src="js/Portal.js"></script>
+    <script src="js/scenes/MainScene.js"></script>
+    <script src="js/scenes/RunGameScene.js"></script>
+    <script src="js/Game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
