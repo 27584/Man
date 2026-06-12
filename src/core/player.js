@@ -1,3 +1,9 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
+import Utils from './utils.js';
+/**
+ * MainScene中的玩家
+ */
 class Player {
     static GROUND_Y = 0;
     static COMBO_TIMEOUT = 1000;
@@ -15,22 +21,18 @@ class Player {
         this.clock = new THREE.Clock();
         this.camera = null;
 
-        // 移动控制
         this.velocity = new THREE.Vector3(0, 0, 0);
         this.isGrounded = false;
         this.isSprinting = false;
         this.isLoaded = false;
         this.isAttacking = false;
 
-        // 连击
         this.comboCount = 0;
         this.lastAttackTime = 0;
         
-        // 攻击时间记录
         this.attackStartTime = 0;
         this.attackDuration = 0;
 
-        // 输入状态
         this.keys = {};
         this.setupInputListeners();
     }
@@ -66,10 +68,10 @@ class Player {
 
     load() {
         return new Promise((resolve, reject) => {
-            const loader = new THREE.GLTFLoader();
+            const loader = new GLTFLoader();
             
             loader.load(
-                'assets/kobe.glb',
+                'assets/models/kobe.glb',
                 (gltf) => {
                     this.mesh = gltf.scene;
                     this.mesh.position.set(0, Player.GROUND_Y, 0);
@@ -255,7 +257,6 @@ class Player {
             }
         }
 
-
         if (!this.isGrounded && !this.isAttacking) {
             this.setAnimation('jump');
         }
@@ -298,3 +299,5 @@ class Player {
         this.isLoaded = false;
     }
 }
+
+export default Player;

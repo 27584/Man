@@ -1,3 +1,9 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
+import Camera from '../core/camera.js';
+import Player from '../core/player.js';
+import Portal from '../entities/portal.js';
+
 class MainScene {
     static GROUND_Y = 0;
 
@@ -27,14 +33,13 @@ class MainScene {
         this.loadPlayer();
         this.isInitialized = true;
     }
-  showHUD() {
-        // 隐藏全局开始标题（一旦开始游戏就不再显示）
+
+    showHUD() {
         const titleDiv = document.getElementById('title');
         const subtitleDiv = document.getElementById('subtitle');
         if (titleDiv) titleDiv.style.display = 'none';
         if (subtitleDiv) subtitleDiv.style.display = 'none';
 
-        // 显示主场景操作提示，隐藏跑酷提示
         const mainHud = document.getElementById('hud');
         const runHud = document.getElementById('run_hud');
         if (mainHud) mainHud.style.display = 'block';
@@ -44,9 +49,7 @@ class MainScene {
     hideHUD() {
         const mainHud = document.getElementById('hud');
         if (mainHud) mainHud.style.display = 'none';
-        // 注意：不要在这里操作 run_hud，因为跑酷场景会自己显示
     }
-
 
     setupScene() {
         this.scene = new THREE.Scene();
@@ -66,7 +69,7 @@ class MainScene {
 
     loadSkybox() {
         const loader = new THREE.TextureLoader();
-        loader.load('assets/skybox.png', (texture) => {
+        loader.load('assets/textures/skybox.png', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             texture.colorSpace = THREE.SRGBColorSpace;
             this.scene.background = texture;
@@ -177,8 +180,7 @@ class MainScene {
         this.camera.onResize();
     }
 
-
-     destroy() {
+    destroy() {
         this.hideHUD();
         if (this.player) this.player.destroy();
         if (this.portal) this.portal.destroy();
@@ -187,3 +189,5 @@ class MainScene {
         this.isInitialized = false;
     }
 }
+
+export default MainScene;

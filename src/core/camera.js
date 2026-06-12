@@ -1,3 +1,7 @@
+import Utils from './utils.js';
+/**
+ * MainScene中的Camera
+ */
 class Camera {
     constructor(camera) {
         this.camera = camera;
@@ -67,3 +71,5 @@ class Camera {
         this.camera.updateProjectionMatrix();
     }
 }
+
+export default Camera;

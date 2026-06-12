@@ -1,3 +1,7 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+/**
+ * MainScene中的Portal
+ */
 class Portal {
     constructor(scene, position, onEnter) {
         this.scene = scene;
@@ -99,3 +103,5 @@ class Portal {
         this.mesh.material.dispose();
     }
 }
+
+export default Portal;

@@ -7,11 +7,9 @@ class Utils {
         return a + (b - a) * t;
     }
 
-    // 角度插值，处理跨越2π边界的情况
     static lerpAngle(current, target, t) {
         let diff = target - current;
         
-        // 将差值规范化到[-π, π]范围
         while (diff > Math.PI) diff -= Math.PI * 2;
         while (diff < -Math.PI) diff += Math.PI * 2;
         
@@ -32,3 +30,5 @@ class Utils {
         return radians * (180 / Math.PI);
     }
 }
+
+export default Utils;
