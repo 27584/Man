@@ -95,6 +95,22 @@ class RunGameScene {
         if (runButton) runButton.style.display = 'none';
     }
     
+    isAndroid() {
+        return /Android/i.test(navigator.userAgent);
+    }
+    
+    showMobileRunButton() {
+        const runButton = document.getElementById('runButton');
+        if (!runButton) return;
+        
+        if (this.isAndroid()) {
+            runButton.style.display = 'block';
+            runButton.onclick = () => {
+                this.game.enterRunGame();
+            };
+        }
+    }
+    
     createCamera() {
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.set(0, 5, -8);
@@ -382,6 +398,8 @@ class RunGameScene {
         
         this.isGameOver = true;
         this.hideHUD();
+        
+        this.showMobileRunButton();
         
         this.playAudio('assets/audio/manba-out.mp3');
 
