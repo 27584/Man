@@ -12,9 +12,9 @@ Man! What can I say
 
 **关于素材**
 所有音频文件均来自B站。
-牢大的贴图来自B站。
+牢大的洛克王国贴图来自B站。
 天空盒贴图来自https://www.3d66.com/tietu_relations/3Em1DL.html。
-模型与动作由混元AI生成，再由我进行合并。（scripts\下附上用于动画合并的自动化脚本）
+模型、贴图与动作由混元AI生成，再由我进行合并。（附上用于动画合并的自动化脚本：scripts\fbx2glb.py）
 
 **关于架构**
 其实我本来在开发的中期想要改成SEC（Scene - Entity - Component）架构，但为时已晚，此时代码已经成了屎山，难以移植使用SEC架构。所以我只能在屎山的基础上尽量做拆分。

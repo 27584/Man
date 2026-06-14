@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
+
 import Camera from '../core/camera.js';
 import Player from '../core/player.js';
 import Portal from '../entities/portal.js';
@@ -44,6 +44,26 @@ class MainScene {
         const runHud = document.getElementById('run_hud');
         if (mainHud) mainHud.style.display = 'block';
         if (runHud) runHud.style.display = 'none';
+        
+        this.setupMobileRunButton();
+    }
+    
+    isAndroid() {
+        return /Android/i.test(navigator.userAgent);
+    }
+    
+    setupMobileRunButton() {
+        const runButton = document.getElementById('runButton');
+        if (!runButton) return;
+        
+        if (this.isAndroid()) {
+            runButton.style.display = 'block';
+            runButton.onclick = () => {
+                this.game.enterRunGame();
+            };
+        } else {
+            runButton.style.display = 'none';
+        }
     }
 
     hideHUD() {

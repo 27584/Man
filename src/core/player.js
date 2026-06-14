@@ -44,6 +44,7 @@ class Player {
     setupInputListeners() {
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
+                       
             if (e.code === 'Space' && this.isGrounded) {
                 e.preventDefault();
                 if (this.isAttacking && this.canCancelAttack()) {

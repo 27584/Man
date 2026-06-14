@@ -46,48 +46,6 @@ class RunGameScene {
         this.gameOverGravity = 15;
         
         this.obstacleGenerator = new ObstacleGenerator(this);
-        
-        this.setupInputListeners();
-    }
-    
-    setupInputListeners() {
-        this._onKeyDown = (e) => {
-            if (this.isGameOver || this.cgManager.isPlaying()) return;
-            
-            if (e.code === 'Space' || e.code === 'ArrowUp') {
-                e.preventDefault();
-                if (this.player) this.player.tryCross();
-                return;
-            }
-            if ((e.code === 'ControlLeft' || e.code === 'ControlRight' || e.code === 'ArrowDown')
-                && this.player && !this.player.isSliding && this.slideCooldown <= 0) {
-                e.preventDefault();
-                this.player.startSliding();
-                this.slideCooldown = 0.3;
-                return;
-            }
-            if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight')
-                && this.player && this.player.sprintCooldown <= 0 && !this.player.isSliding) {
-                e.preventDefault();
-                this.player.startSprint(this.gameSpeed);
-                return;
-            }
-            if (e.code === 'ArrowLeft') {
-                e.preventDefault();
-                this.targetTrack = Math.min(this.NUM_TRACKS - 1, this.targetTrack + 1);
-                if (this.player) this.player.setTargetTrack(this.targetTrack);
-                return;
-            }
-            if (e.code === 'ArrowRight') {
-                e.preventDefault();
-                this.targetTrack = Math.max(0, this.targetTrack - 1);
-                if (this.player) this.player.setTargetTrack(this.targetTrack);
-                return;
-            }
-        };
-        this._onKeyUp = () => {};
-        window.addEventListener('keydown', this._onKeyDown);
-        window.addEventListener('keyup', this._onKeyUp);
     }
     
     init() {
@@ -295,9 +253,7 @@ class RunGameScene {
             this.environmentGenerator.updateInfiniteWorld(this.playerZ);
         }
         
-        if (this.slideCooldown > 0) {
-            this.slideCooldown -= dt;
-        }
+        
         
         this.obstacleGenerator.updateObstacles();
         this.updateGameSpeed(dt);
@@ -487,12 +443,10 @@ class RunGameScene {
     destroy() {
         this.hideHUD();
         
-        if (this._onKeyDown) {
-            window.removeEventListener('keydown', this._onKeyDown);
+        if (this.player && this.player.removeInputListeners) {
+            this.player.removeInputListeners();
         }
-        if (this._onKeyUp) {
-            window.removeEventListener('keyup', this._onKeyUp);
-        }
+        
         if (this._onRestart) {
             window.removeEventListener('keydown', this._onRestart);
         }

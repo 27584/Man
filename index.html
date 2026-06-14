@@ -65,6 +65,36 @@
         border-left: 3px solid #ffaa00;
     }
     
+    /* 移动端 RUN 按钮 */
+    #runButton {
+        display: none;
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        border: none;
+        padding: 16px 48px;
+        font-size: 24px;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    #runButton:hover {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+    }
+    
+    #runButton:active {
+        transform: translateX(-50%) scale(0.95);
+    }
+    
     @keyframes blink { 
         0%, 100% { opacity: 1; } 
         50% { opacity: 0.3; } 
@@ -81,11 +111,12 @@
             <div>空格 - 跳跃</div>
             <div>WASD - 移动</div>
         </div>
+        <button id="runButton">RUN</button>
         <div id="run_hud">
             <div>Shift - 冲刺</div>
-            <div>Ctrl/↓ - 滑铲</div>
-            <div>空格/↑ - 跳跃</div>
-            <div>← → - 切换跑道</div>
+            <div>S/↓ - 滑铲</div>
+            <div>W/空格/↑ - 跳跃</div>
+            <div>A/D/←/→ - 切换跑道</div>
         </div>
     </div>
     <script type="module" src="src/main.js"></script>

@@ -29,6 +29,58 @@ class Player {
         this.targetTrack = 1;
         
         this.onLoadCallback = null;
+        
+        this.slideCooldown = 0;
+        this.SLIDE_COOLDOWN_TIME = 0.3;
+        
+        this.keys = {};
+        this.setupInputListeners();
+    }
+    
+    setupInputListeners() {
+        this._onKeyDown = (e) => {
+            if (!this.scene || this.scene.isGameOver || (this.scene.cgManager && this.scene.cgManager.isPlaying())) {
+                return;
+            }
+            
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                e.preventDefault();
+                this.tryCross();
+                return;
+            }
+            if ((e.code === 'ControlLeft' || e.code === 'ControlRight' || e.code === 'ArrowDown' || e.code === 'KeyS')
+                && !this.isSliding && this.slideCooldown <= 0) {
+                e.preventDefault();
+                this.startSliding();
+                return;
+            }
+            if ((e.code === 'ShiftRight' || e.code === 'ShiftLeft')
+                && this.sprintCooldown <= 0 && !this.isSliding) {
+                e.preventDefault();
+                if (this.scene.gameSpeed) {
+                    this.startSprint(this.scene.gameSpeed);
+                }
+                return;
+            }
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+                e.preventDefault();
+                this.targetTrack = Math.min(2, this.targetTrack + 1);
+                return;
+            }
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+                e.preventDefault();
+                this.targetTrack = Math.max(0, this.targetTrack - 1);
+                return;
+            }
+        };
+        
+        window.addEventListener('keydown', this._onKeyDown);
+    }
+    
+    removeInputListeners() {
+        if (this._onKeyDown) {
+            window.removeEventListener('keydown', this._onKeyDown);
+        }
     }
     
     setOnLoadCallback(callback) {
@@ -127,6 +179,7 @@ class Player {
         }
         
         this.isSliding = true;
+        this.slideCooldown = this.SLIDE_COOLDOWN_TIME;
         if (this.animations['sprint']) this.animations['sprint'].stop();
         this.animations['sliding_tackle'].stop();
         this.animations['sliding_tackle'].reset();
@@ -213,6 +266,10 @@ class Player {
         }
         
         const boostDistance = this.updateSprint(deltaTime, gameSpeed);
+        
+        if (this.slideCooldown > 0) {
+            this.slideCooldown -= deltaTime;
+        }
         
         if (isGameOver) return { position: this.model.position, boostDistance };
         

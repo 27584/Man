@@ -82,7 +82,7 @@ class Chaser {
         
         this.distance = -this.model.position.z + playerZ;
         
-        if (this.distance < 8) {
+        if (this.distance < 6) {
             this.mode = 'medium';
         } else if (this.distance > 16) {
             this.distance = 16;
