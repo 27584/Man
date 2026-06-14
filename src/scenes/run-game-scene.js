@@ -490,18 +490,20 @@ class RunGameScene {
         };
         window.addEventListener('keydown', this._onRestart);
 
-        // ========== 新增：上传分数按钮 ==========
         if (!this.uploadScoreBtn) {
             this.uploadScoreBtn = document.createElement("button");
             Object.assign(this.uploadScoreBtn.style, {
                 position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, 120px)",
-                padding: "10px 20px",
-                fontSize: "18px",
+                top: "20px",    
+                left: "20px",  
+                padding: "8px 14px",
+                fontSize: "16px",
                 zIndex: "9999",
-                cursor: "pointer"
+                cursor: "pointer",
+                border: "none",
+                borderRadius: "6px",
+                backgroundColor: "#222222",
+                color: "#ffffff"
             });
             this.uploadScoreBtn.textContent = "上传我的分数";
             this.uploadScoreBtn.onclick = () => {
