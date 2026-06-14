@@ -34,6 +34,10 @@ class Player {
         this.SLIDE_COOLDOWN_TIME = 0.3;
         
         this.keys = {};
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.touchStartTime = 0;
+        this.lastTapTime = 0;
         this.setupInputListeners();
     }
     
@@ -75,11 +79,95 @@ class Player {
         };
         
         window.addEventListener('keydown', this._onKeyDown);
+        
+        this._onTouchStart = (e) => {
+            if (!this.scene || this.scene.isGameOver || (this.scene.cgManager && this.scene.cgManager.isPlaying())) {
+                return;
+            }
+            
+            const touch = e.touches[0];
+            this.touchStartX = touch.clientX;
+            this.touchStartY = touch.clientY;
+            this.touchStartTime = Date.now();
+            
+            const now = Date.now();
+            if (now - this.lastTapTime < 300) {
+                e.preventDefault();
+                this.handleDoubleTap();
+            }
+            this.lastTapTime = now;
+        };
+        
+        this._onTouchEnd = (e) => {
+            if (!this.scene || this.scene.isGameOver || (this.scene.cgManager && this.scene.cgManager.isPlaying())) {
+                return;
+            }
+            
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - this.touchStartX;
+            const deltaY = touch.clientY - this.touchStartY;
+            const deltaTime = Date.now() - this.touchStartTime;
+            
+            if (deltaTime > 1000) return;
+            
+            const minSwipeDistance = 50;
+            
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (Math.abs(deltaX) > minSwipeDistance) {
+                    if (deltaX > 0) {
+                        this.handleSwipeRight();
+                    } else {
+                        this.handleSwipeLeft();
+                    }
+                }
+            } else {
+                if (Math.abs(deltaY) > minSwipeDistance) {
+                    if (deltaY > 0) {
+                        this.handleSwipeDown();
+                    } else {
+                        this.handleSwipeUp();
+                    }
+                }
+            }
+        };
+        
+        window.addEventListener('touchstart', this._onTouchStart, { passive: true });
+        window.addEventListener('touchend', this._onTouchEnd, { passive: true });
+    }
+    
+    handleSwipeLeft() {
+        this.targetTrack = Math.min(2, this.targetTrack + 1);
+    }
+    
+    handleSwipeRight() {
+        this.targetTrack = Math.max(0, this.targetTrack - 1);
+    }
+    
+    handleSwipeUp() {
+        this.tryCross();
+    }
+    
+    handleSwipeDown() {
+        if (!this.isSliding && this.slideCooldown <= 0) {
+            this.startSliding();
+        }
+    }
+    
+    handleDoubleTap() {
+        if (this.sprintCooldown <= 0 && !this.isSliding && this.scene.gameSpeed) {
+            this.startSprint(this.scene.gameSpeed);
+        }
     }
     
     removeInputListeners() {
         if (this._onKeyDown) {
             window.removeEventListener('keydown', this._onKeyDown);
+        }
+        if (this._onTouchStart) {
+            window.removeEventListener('touchstart', this._onTouchStart);
+        }
+        if (this._onTouchEnd) {
+            window.removeEventListener('touchend', this._onTouchEnd);
         }
     }
     
