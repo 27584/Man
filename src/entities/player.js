@@ -153,26 +153,36 @@ class Player {
         this.sprintDuration = this.SPRINT_DURATION_TIME;
         this.sprintCooldown = this.SPRINT_COOLDOWN_TIME;
         this.sprintSpeedBoost = gameSpeed * this.SPRINT_SPEED_MULTIPLIER;
-        
-        if (this.animations && this.animations['sprint']) {
-            this.animations['sprint'].playbackRate = 3.0;
-        }
+  
     }
     
     updateSprintAnimationSpeed(gameSpeed) {
-        if (!this.animations || !this.animations['sprint']) return;
-        
-        const baseSpeed = 1.0;
-        const maxSpeed = 2.0;
-        const minSpeed = 12;
-        const maxSpeedValue = 25;
-        
-        const speedFactor = Math.min(1, Math.max(0, (gameSpeed - minSpeed) / (maxSpeedValue - minSpeed)));
-        const animationSpeed = baseSpeed + (maxSpeed - baseSpeed) * speedFactor;
-        
-        this.animations['sprint'].playbackRate = animationSpeed;
+        //此处有点问题，先不用了
+        return;
+    if (!this.animations || !this.animations['sprint']) return;
+    
+    if (this.isSprinting) {
+        this.animations['sprint'].playbackRate = 3.0;
+        return;
     }
     
+    if (this.isCrossing || this.isSliding) {
+        return;
+    }
+    
+  
+    const GAME_SPEED_MIN = 12;
+    const GAME_SPEED_MAX = 25;
+    const ANIM_SPEED_MIN = 1.0;
+    const ANIM_SPEED_MAX = 2.0;
+    
+    const normalizedSpeed = Math.min(1, Math.max(0, 
+        (gameSpeed - GAME_SPEED_MIN) / (GAME_SPEED_MAX - GAME_SPEED_MIN)
+    ));
+    
+    this.animations['sprint'].playbackRate = 
+        ANIM_SPEED_MIN + (ANIM_SPEED_MAX - ANIM_SPEED_MIN) * normalizedSpeed;
+}
     updateSprint(deltaTime, gameSpeed) {
         if (!this.isSprinting) {
             if (this.sprintCooldown > 0) {
