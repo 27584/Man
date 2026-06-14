@@ -91,6 +91,8 @@ class RunGameScene {
         if (this.scoreElement) this.scoreElement.style.display = 'none';
         const mainHud = document.getElementById('hud');
         if (mainHud) mainHud.style.display = 'none';
+        const runButton = document.getElementById('runButton');
+        if (runButton) runButton.style.display = 'none';
     }
     
     createCamera() {
