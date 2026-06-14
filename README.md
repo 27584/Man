@@ -19,3 +19,6 @@ Man! What can I say
 **关于架构**
 其实我本来在开发的中期想要改成SEC（Scene - Entity - Component）架构，但为时已晚，此时代码已经成了屎山，难以移植使用SEC架构。所以我只能在屎山的基础上尽量做拆分。
 如你所见，src\scenes下的两个场景分别对应了主场景和跑酷场景，其中main-scene与run-game-scene的架构上稍有不同，最直接的区别在于，main-scene中的对象传递scene参数时对应的是Three.js原生的scene实例，而run-game-scene中的对象传递scene参数时对应的是RunGameScene的实例本身。
+
+**排行榜功能**
+使用了supabase（https://supabase.com/）

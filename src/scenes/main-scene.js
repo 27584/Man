@@ -20,6 +20,67 @@ class MainScene {
         this.isInitialized = false;
 
         this.showHUD();
+        // 绑定排行榜按钮事件
+        this.bindLeaderboardEvents();
+    }
+
+    // 绑定排行榜弹窗事件
+    bindLeaderboardEvents() {
+        const btn = document.getElementById('leaderboardBtn');
+        const modal = document.getElementById('leaderboardModal');
+        const closeBtn = document.getElementById('closeLeaderboard');
+        const content = document.getElementById('leaderboardContent');
+
+        if (!btn || !modal || !closeBtn || !content) return;
+
+        // 打开弹窗并加载数据
+        btn.addEventListener('click', async () => {
+            modal.style.display = 'block';
+            content.innerText = '加载中...';
+            try {
+                // anon key
+                const ANON_KEY = "sb_publishable_5GQK7A-LKm6QyGheeqYksA_S7FnMdFd";
+                const res = await fetch("https://wshazyyuenmktoxzaxmx.supabase.co/functions/v1/score_rank?limit=20", {
+                    headers: {
+                        Authorization: `Bearer ${ANON_KEY}`
+                    }
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || '请求失败');
+
+                const list = json.leaderboard || [];
+                if (list.length === 0) {
+                    content.innerHTML = "<p>暂无数据</p>";
+                    return;
+                }
+                let html = `<table style="width:100%;border-collapse:collapse;">
+                  <thead>
+                    <tr style="border-bottom:1px solid #ccc;">
+                      <th style="text-align:left;padding:4px;">排名</th>
+                      <th style="text-align:left;padding:4px;">昵称</th>
+                      <th style="text-align:right;padding:4px;">分数</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+                list.forEach((item, idx) => {
+                    html += `<tr style="border-bottom:1px solid #eee;">
+                      <td style="padding:4px;">${idx+1}</td>
+                      <td style="padding:4px;">${item.nickname}</td>
+                      <td style="text-align:right;padding:4px;">${item.score}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+                content.innerHTML = html;
+            } catch (err) {
+                content.innerText = '加载失败：' + err.message;
+                console.error(err);
+            }
+        });
+
+        // 关闭弹窗
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
     }
 
     init() {

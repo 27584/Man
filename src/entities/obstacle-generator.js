@@ -1,13 +1,19 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
 
 class ObstacleGenerator {
     constructor(scene) {
         this.scene = scene;
         this.obstacles = [];
+        this.ballModel = null;
+        this.ballLoaded = false;
         
         this.GRID_SIZE = 2.5;
         this.MIN_SPEED = 12;
         this.MAX_SPEED = 25;
+        
+        // 预加载模型
+        this.loadBallModel();
         
         this.params = {
             obstacleGapMin: 5,
@@ -141,6 +147,21 @@ class ObstacleGenerator {
         return items[items.length - 1];
     }
     
+    loadBallModel() {
+        const loader = new GLTFLoader();
+        loader.load(
+            'assets/models/ball.glb',
+            (gltf) => {
+                this.ballModel = gltf.scene;
+                this.ballLoaded = true;
+            },
+            undefined,
+            (error) => {
+                console.error('加载ball.glb失败:', error);
+            }
+        );
+    }
+    
     processGrid(grid) {
         if (grid <= this.lastProcessedGrid) return;
         
@@ -159,13 +180,19 @@ class ObstacleGenerator {
         this.lastProcessedGrid = grid;
     }
     
-    update(currentZ) {
-        const currentGrid = Math.floor(currentZ / this.GRID_SIZE);
+    update(deltaTime) {
+        const currentGrid = Math.floor(deltaTime / this.GRID_SIZE);
         const lookAhead = 20;
         
         for (let grid = this.lastProcessedGrid + 1; grid <= currentGrid + lookAhead; grid++) {
             this.processGrid(grid);
         }
+        
+        this.obstacles.forEach(obstacle => {
+            if (obstacle.userData.type === 'low') {
+                obstacle.rotation.y += 0.05 * deltaTime;
+            }
+        });
     }
     
     spawnInitialObstacles() {
@@ -215,33 +242,16 @@ class ObstacleGenerator {
     createLowObstacle() {
         const group = new THREE.Group();
         
-        const bottomGeo = new THREE.BoxGeometry(1.5, 1.2, 1.2);
-        const bottomMat = new THREE.MeshPhongMaterial({ 
-            color: 0x444444,
-            shininess: 30
+        const ball = this.ballModel.clone();
+        ball.scale.set(0.8, 0.8, 0.8);
+        ball.position.y = 0.8;
+        ball.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+            }
         });
-        const bottom = new THREE.Mesh(bottomGeo, bottomMat);
-        bottom.position.y = 0.6;
-        bottom.castShadow = true;
-        bottom.receiveShadow = true;
-        group.add(bottom);
-        
-        const topGeo = new THREE.BoxGeometry(1.3, 0.5, 1.0);
-        const topMat = new THREE.MeshPhongMaterial({ 
-            color: 0x666666,
-            shininess: 30
-        });
-        const top = new THREE.Mesh(topGeo, topMat);
-        top.position.y = 1.45;
-        top.castShadow = true;
-        top.receiveShadow = true;
-        group.add(top);
-        
-        const indicatorGeo = new THREE.BoxGeometry(0.2, 0.1, 0.1);
-        const indicatorMat = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
-        const indicator = new THREE.Mesh(indicatorGeo, indicatorMat);
-        indicator.position.set(0, 0.1, 0.5);
-        group.add(indicator);
+        group.add(ball);
         
         return group;
     }

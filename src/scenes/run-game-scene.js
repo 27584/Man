@@ -46,6 +46,12 @@ class RunGameScene {
         this.gameOverGravity = 15;
         
         this.obstacleGenerator = new ObstacleGenerator(this);
+
+        // 上传分数按钮相关
+        this.uploadScoreBtn = null;
+        this.isUploadingScore = false;
+        this.SUPABASE_ANON_KEY = "sb_publishable_5GQK7A-LKm6QyGheeqYksA_S7FnMdFd";
+        this.SUPABASE_FUNC_URL = "https://wshazyyuenmktoxzaxmx.supabase.co/functions/v1/score_rank";
     }
     
     init() {
@@ -392,6 +398,38 @@ class RunGameScene {
         
         ctx.shadowBlur = 0;
     }
+
+    // 上传分数方法
+    async uploadScore(nickname) {
+        if (this.isUploadingScore) return;
+        this.isUploadingScore = true;
+        this.uploadScoreBtn.disabled = true;
+        this.uploadScoreBtn.textContent = "上传中...";
+
+        const finalScore = Math.floor(this.score);
+        try {
+            const res = await fetch(this.SUPABASE_FUNC_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({ nickname, score: finalScore })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "上传失败");
+            alert(data.message || "分数上传成功！");
+        } catch (err) {
+            console.error(err);
+            alert("上传失败：" + err.message);
+        } finally {
+            this.isUploadingScore = false;
+            if (this.uploadScoreBtn) {
+                this.uploadScoreBtn.disabled = false;
+                this.uploadScoreBtn.textContent = "上传我的分数";
+            }
+        }
+    }
     
     gameOver() {
         if (this.isGameOver) return;
@@ -451,6 +489,30 @@ class RunGameScene {
             }
         };
         window.addEventListener('keydown', this._onRestart);
+
+        // ========== 新增：上传分数按钮 ==========
+        if (!this.uploadScoreBtn) {
+            this.uploadScoreBtn = document.createElement("button");
+            Object.assign(this.uploadScoreBtn.style, {
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, 120px)",
+                padding: "10px 20px",
+                fontSize: "18px",
+                zIndex: "9999",
+                cursor: "pointer"
+            });
+            this.uploadScoreBtn.textContent = "上传我的分数";
+            this.uploadScoreBtn.onclick = () => {
+                const nick = prompt("请输入你的昵称：", "匿名玩家");
+                if (!nick || nick.trim() === "") return;
+                this.uploadScore(nick.trim());
+            };
+            document.body.appendChild(this.uploadScoreBtn);
+        } else {
+            this.uploadScoreBtn.style.display = "block";
+        }
     }
     
     onResize() {
@@ -469,6 +531,12 @@ class RunGameScene {
         
         if (this._onRestart) {
             window.removeEventListener('keydown', this._onRestart);
+        }
+
+        // 销毁上传按钮
+        if (this.uploadScoreBtn) {
+            this.uploadScoreBtn.remove();
+            this.uploadScoreBtn = null;
         }
         
         this.obstacleGenerator.obstacles.forEach((obstacle) => {
