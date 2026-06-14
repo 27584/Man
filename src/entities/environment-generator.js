@@ -16,6 +16,7 @@ class EnvironmentGenerator {
         
         this.textureCache = [];
         this.textureLoader = new THREE.TextureLoader();
+        // 为了提升加载速度，我删除了一些贴图，因此许多贴图实际不存在
         this.textureFiles = [
             'man尾兽.png', '白发牢露.png', '蹦床牢鼠.png', '布克牢岩.png', '炽热牢狮.png',
             '风滚牢虫.png', '花影牢羊.png', '幻影牢菇.png', '巨噬牢鳗.png', '卷胡牢獭.png',
