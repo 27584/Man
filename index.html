@@ -33,8 +33,11 @@
         </div>
     </div>
     
-    <!-- 排行榜按钮 -->
-    <button id="leaderboardBtn">排行榜</button>
+    <!-- 功能按钮 -->
+    <div id="actionButtons">
+        <button id="uploadScoreBtn" class="action-btn">上传分数</button>
+        <button id="leaderboardBtn" class="action-btn">排行榜</button>
+    </div>
 
     <!-- 排行榜弹窗 -->
     <div id="leaderboardModal">
@@ -43,6 +46,31 @@
             <button id="closeLeaderboard">×</button>
         </div>
         <div id="leaderboardContent">加载中...</div>
+    </div>
+
+    <!-- 自定义输入弹窗 -->
+    <div id="nicknameModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>上传分数</h3>
+            <input type="text" id="nicknameInput" placeholder="请输入你的昵称" maxlength="10">
+            <div class="modal-buttons">
+                <button id="submitNickname" class="modal-btn primary">确认</button>
+                <button id="cancelNickname" class="modal-btn secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toastMessage" class="toast-message"></div>
+
+    <!-- GAME OVER UI -->
+    <div id="gameOverOverlay" class="gameover-overlay">
+        <div class="gameover-content">
+            <div class="gameover-title">GAME OVER</div>
+            <div class="gameover-score-label">最终得分</div>
+            <div class="gameover-score" id="gameOverScore">0</div>
+            <div class="gameover-hint">按 ENTER 重新开始</div>
+        </div>
     </div>
     
     <script type="module" src="src/main.js"></script>

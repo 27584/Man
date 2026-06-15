@@ -250,10 +250,6 @@ class RunGameScene {
             return;
         }
         
-        if (this.isGameOver && this.gameOverSprite && this.gameOverCanvasTexture) {
-            this.updateGameOverUI();
-        }
-        
         if (this.isGameOver && this.player && this.player.model) {
             
             this.gameOverVelocityY -= this.gameOverGravity * dt;
@@ -331,80 +327,15 @@ class RunGameScene {
         }
     }
     
-    updateGameOverUI() {
-        if (!this.gameOverStartTime) return;
-        
-        const elapsed = (performance.now() - this.gameOverStartTime) / 1000;
-        const t = Math.min(1, elapsed / this.gameOverAnimDuration);
-        
-        if (t < 1.0 && this.gameOverCanvasTexture && this.gameOverCtx) {
-            const easeOutBack = (t) => {
-                const c1 = 1.70158;
-                const c3 = c1 + 1;
-                return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-            };
-            
-            const scale = 0.4 + easeOutBack(t) * 0.6;
-            const alpha = Math.min(1, t * 1.5);
-            
-            let shakeX = 0, shakeY = 0;
-            if (t < 0.25) {
-                const intensity = (1 - t / 0.25) * 12;
-                shakeX = (Math.random() - 0.5) * intensity;
-                shakeY = (Math.random() - 0.5) * intensity;
-            }
-            
-            this.drawGameOverCanvas(alpha, scale, { x: shakeX, y: shakeY });
-            this.gameOverCanvasTexture.needsUpdate = true;
-        }
-    }
-    
-    drawGameOverCanvas(alpha = 1, scale = 1, shakeOffset = { x: 0, y: 0 }) {
-        if (!this.gameOverCtx || !this.gameOverCanvas) return;
-        
-        const ctx = this.gameOverCtx;
-        const canvas = this.gameOverCanvas;
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = `rgba(0, 0, 0, ${0.7 * alpha})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.save();
-        ctx.translate(canvas.width / 2 + shakeOffset.x, 80 + shakeOffset.y);
-        ctx.scale(scale, scale);
-        
-        ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
-        ctx.font = 'bold 52px Arial';
-        ctx.textAlign = 'center';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
-        ctx.fillText('GAME OVER', 0, 0);
-        
-        ctx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
-        ctx.lineWidth = 2;
-        ctx.strokeText('GAME OVER', 0, 0);
-        ctx.restore();
-        
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-        ctx.font = 'bold 32px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(`Final Score: ${Math.floor(this.score)}`, canvas.width / 2, 160);
-        
-        const blinkAlpha = alpha * (0.5 + Math.sin(Date.now() * 0.005) * 0.5);
-        ctx.fillStyle = `rgba(0, 255, 0, ${blinkAlpha})`;
-        ctx.font = '24px Arial';
-        ctx.fillText('Press ENTER to restart', canvas.width / 2, 220);
-        
-        ctx.shadowBlur = 0;
-    }
-
     // 上传分数方法
     async uploadScore(nickname) {
         if (this.isUploadingScore) return;
         this.isUploadingScore = true;
-        this.uploadScoreBtn.disabled = true;
-        this.uploadScoreBtn.textContent = "上传中...";
+        this.hideNicknameModal();
+        if (this.uploadScoreBtn) {
+            this.uploadScoreBtn.disabled = true;
+            this.uploadScoreBtn.textContent = "上传中...";
+        }
 
         const finalScore = Math.floor(this.score);
         try {
@@ -418,16 +349,88 @@ class RunGameScene {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "上传失败");
-            alert(data.message || "分数上传成功！");
+            this.showToast(data.message || "分数上传成功！", "success");
         } catch (err) {
             console.error(err);
-            alert("上传失败：" + err.message);
+            this.showToast("上传失败：" + err.message, "error");
         } finally {
             this.isUploadingScore = false;
             if (this.uploadScoreBtn) {
                 this.uploadScoreBtn.disabled = false;
                 this.uploadScoreBtn.textContent = "上传我的分数";
             }
+        }
+    }
+    
+    // 显示昵称输入弹窗
+    showNicknameModal() {
+        const modal = document.getElementById('nicknameModal');
+        const input = document.getElementById('nicknameInput');
+        if (modal && input) {
+            input.value = '';
+            input.focus();
+            modal.classList.add('active');
+        }
+        
+        const submitBtn = document.getElementById('submitNickname');
+        const cancelBtn = document.getElementById('cancelNickname');
+        
+        if (submitBtn) {
+            submitBtn.onclick = () => {
+                const nick = input.value.trim();
+                if (nick) {
+                    this.uploadScore(nick);
+                }
+            };
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.onclick = () => {
+                this.hideNicknameModal();
+            };
+        }
+    }
+    
+    // 隐藏昵称输入弹窗
+    hideNicknameModal() {
+        const modal = document.getElementById('nicknameModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+    
+    // 显示提示消息
+    showToast(message, type = 'info') {
+        const toast = document.getElementById('toastMessage');
+        if (!toast) return;
+        
+        toast.textContent = message;
+        toast.className = `toast-message active ${type}`;
+        
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 3000);
+    }
+    
+    // 显示 GAMEOVER UI
+    showGameOverUI() {
+        const overlay = document.getElementById('gameOverOverlay');
+        const scoreElement = document.getElementById('gameOverScore');
+        
+        if (scoreElement) {
+            scoreElement.textContent = Math.floor(this.score);
+        }
+        
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+    }
+    
+    // 隐藏 GAMEOVER UI
+    hideGameOverUI() {
+        const overlay = document.getElementById('gameOverOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
         }
     }
     
@@ -460,27 +463,10 @@ class RunGameScene {
             window.removeEventListener('keyup', this._onKeyUp);
         }
         
-        this.gameOverCanvas = document.createElement('canvas');
-        this.gameOverCanvas.width = 512;
-        this.gameOverCanvas.height = 256;
-        this.gameOverCtx = this.gameOverCanvas.getContext('2d');
-        
-        this.drawGameOverCanvas();
-        this.gameOverCanvasTexture = new THREE.CanvasTexture(this.gameOverCanvas);
-        const spriteMaterial = new THREE.SpriteMaterial({ map: this.gameOverCanvasTexture, transparent: true, depthTest: false });
-        this.gameOverSprite = new THREE.Sprite(spriteMaterial);
-        
-        if (this.camera) {
-            this.gameOverSprite.position.copy(this.camera.position);
-            this.gameOverSprite.position.z += 6;
-            this.gameOverSprite.position.y += 1;
-        } else {
-            this.gameOverSprite.position.set(0, 3, 5);
-        }
-        this.gameOverSprite.scale.set(8, 4, 1);
-        this.scene.add(this.gameOverSprite);
-        
         this.gameOverStartTime = performance.now();
+        
+        // 显示 HTML GAMEOVER UI
+        this.showGameOverUI();
         
         this._onRestart = (e) => {
             if (e.code === 'Enter') {
@@ -491,28 +477,14 @@ class RunGameScene {
         window.addEventListener('keydown', this._onRestart);
 
         if (!this.uploadScoreBtn) {
-            this.uploadScoreBtn = document.createElement("button");
-            Object.assign(this.uploadScoreBtn.style, {
-                position: "fixed",
-                top: "20px",    
-                left: "20px",  
-                padding: "8px 14px",
-                fontSize: "16px",
-                zIndex: "9999",
-                cursor: "pointer",
-                border: "none",
-                borderRadius: "6px",
-                backgroundColor: "#222222",
-                color: "#ffffff"
-            });
-            this.uploadScoreBtn.textContent = "上传我的分数";
-            this.uploadScoreBtn.onclick = () => {
-                const nick = prompt("请输入你的昵称：", "匿名玩家");
-                if (!nick || nick.trim() === "") return;
-                this.uploadScore(nick.trim());
-            };
-            document.body.appendChild(this.uploadScoreBtn);
-        } else {
+            this.uploadScoreBtn = document.getElementById('uploadScoreBtn');
+            if (this.uploadScoreBtn) {
+                this.uploadScoreBtn.onclick = () => {
+                    this.showNicknameModal();
+                };
+            }
+        }
+        if (this.uploadScoreBtn) {
             this.uploadScoreBtn.style.display = "block";
         }
     }
@@ -526,6 +498,7 @@ class RunGameScene {
     
     destroy() {
         this.hideHUD();
+        this.hideGameOverUI();
         
         if (this.player && this.player.removeInputListeners) {
             this.player.removeInputListeners();
@@ -535,10 +508,9 @@ class RunGameScene {
             window.removeEventListener('keydown', this._onRestart);
         }
 
-        // 销毁上传按钮
+        // 隐藏上传按钮
         if (this.uploadScoreBtn) {
-            this.uploadScoreBtn.remove();
-            this.uploadScoreBtn = null;
+            this.uploadScoreBtn.style.display = "none";
         }
         
         this.obstacleGenerator.obstacles.forEach((obstacle) => {
