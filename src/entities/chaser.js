@@ -122,7 +122,7 @@ class Chaser {
     }
     
     updateCG(deltaTime, playerPos) {
-        if (!this.model || !this.animationMixer) return;
+        if (!this.model || !this.animationMixer || !playerPos) return;
         
         const cgSpeed = 15;
         this.model.position.z += cgSpeed * deltaTime * 1.1;

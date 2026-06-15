@@ -22,3 +22,5 @@ Man! What can I say
 
 **排行榜功能**
 使用了supabase（https://supabase.com/）
+并部署了一个Edge Function，用于处理排行榜数据的查询与更新。
+Edge Function的代码在scripts\score_rank.ts中。
