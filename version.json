@@ -1,11 +1,12 @@
 {
-    "version": "v1.0.0",
+    "version": "v1.0.2",
     "changelog": [
         {
-            "version": "v1.0.0",
+            "version": "v1.0.2",
             "date": "2026-06-15",
             "changes": [
-                "新增了更新日志"
+                "新增了更新日志",
+                "优化了UI"
             ]
         }
     ]

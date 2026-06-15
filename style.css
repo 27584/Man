@@ -483,6 +483,48 @@ body {
     color: var(--secondary-color);
     animation: blink 1.5s ease-in-out infinite;
     text-shadow: 0 0 10px rgba(78, 205, 196, 0.6);
+    margin-bottom: 32px;
+}
+
+.gameover-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.gameover-btn {
+    padding: 12px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.gameover-btn.primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #ee5a24 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.gameover-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+}
+
+.gameover-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.gameover-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
 }
 
 @keyframes fadeIn {

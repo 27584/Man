@@ -439,15 +439,9 @@ class RunGameScene {
     showGameOverUI() {
         const overlay = document.getElementById('gameOverOverlay');
         const scoreElement = document.getElementById('gameOverScore');
-        const hintElement = document.getElementById('gameOverHint');
         
         if (scoreElement) {
             scoreElement.textContent = Math.floor(this.score);
-        }
-        
-        // 移动端隐藏 "按 ENTER 重新开始" 提示
-        if (hintElement) {
-            hintElement.style.display = this.isMobile() ? 'none' : 'block';
         }
         
         if (overlay) {
@@ -468,8 +462,6 @@ class RunGameScene {
         
         this.isGameOver = true;
         this.hideHUD();
-        
-        this.showMobileRunButton();
         
         this.playAudio('assets/audio/manba-out.mp3');
 
@@ -494,16 +486,23 @@ class RunGameScene {
         
         this.gameOverStartTime = performance.now();
         
-        // 显示 HTML GAMEOVER UI
         this.showGameOverUI();
+
+        // 绑定按钮点击事件
+        const restartBtn = document.getElementById('restartBtn');
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
         
-        this._onRestart = (e) => {
-            if (e.code === 'Enter') {
-                window.removeEventListener('keydown', this._onRestart);
+        if (restartBtn) {
+            restartBtn.onclick = () => {
                 this.game.enterRunGame();
-            }
-        };
-        window.addEventListener('keydown', this._onRestart);
+            };
+        }
+        
+        if (backToMenuBtn) {
+            backToMenuBtn.onclick = () => {
+                this.game.returnToMainMenu();
+            };
+        }
 
         if (!this.uploadScoreBtn) {
             this.uploadScoreBtn = document.getElementById('uploadScoreBtn');
