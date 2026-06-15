@@ -248,13 +248,13 @@ class RunGameScene {
         this.scoreElement.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.8)';
         this.scoreElement.style.zIndex = '100';
         this.scoreElement.style.pointerEvents = 'none';
-        this.scoreElement.textContent = 'Score: 0';
+        this.scoreElement.textContent = ' 0';
         document.body.appendChild(this.scoreElement);
     }
     
     updateScore() {
         if (this.scoreElement) {
-            this.scoreElement.textContent = `Score: ${Math.floor(this.score)}`;
+            this.scoreElement.textContent = `${Math.floor(this.score)}`;
         }
     }
     

@@ -106,10 +106,21 @@ class MainScene {
             const res = await fetch('version.json');
             this.versionData = await res.json();
             
+            const version = this.versionData.version || 'v1.0.0';
+            
+            // 更新浏览器标签页标题
+            document.title = `Man! ${version}`;
+            
             // 更新版本号显示
             const versionElement = document.getElementById('version');
-            if (versionElement && this.versionData.version) {
-                versionElement.textContent = this.versionData.version;
+            if (versionElement) {
+                versionElement.textContent = version;
+            }
+            
+            // 更新 title 中的版本号
+            const titleVersion = document.getElementById('titleVersion');
+            if (titleVersion) {
+                titleVersion.textContent = version;
             }
         } catch (err) {
             console.error('加载版本信息失败:', err);
