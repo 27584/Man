@@ -185,8 +185,19 @@ class MainScene {
 
         const mainHud = document.getElementById('hud');
         const runHud = document.getElementById('run_hud');
-        if (mainHud) mainHud.style.display = 'block';
-        if (runHud) runHud.style.display = 'none';
+        const runHudMobile = document.getElementById('run_hud_mobile');
+        
+        if (this.isMobile()) {
+            // 移动端隐藏所有 HUD
+            if (mainHud) mainHud.style.display = 'none';
+            if (runHud) runHud.style.display = 'none';
+            if (runHudMobile) runHudMobile.style.display = 'none';
+        } else {
+            // 桌面端显示键盘操作提示
+            if (mainHud) mainHud.style.display = 'block';
+            if (runHud) runHud.style.display = 'none';
+            if (runHudMobile) runHudMobile.style.display = 'none';
+        }
         
         this.setupMobileRunButton();
     }

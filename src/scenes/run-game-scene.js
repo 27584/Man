@@ -81,22 +81,43 @@ class RunGameScene {
     
     showHUD() {
         const runHud = document.getElementById('run_hud');
+        const runHudMobile = document.getElementById('run_hud_mobile');
         const mainHud = document.getElementById('hud');
-        if (runHud) runHud.style.display = 'block';
-        if (mainHud) mainHud.style.display = 'none';
+        const mainHudMobile = document.getElementById('hud-mobile');
         const titleDiv = document.getElementById('title');
         const subtitleDiv = document.getElementById('subtitle');
+        
         if (titleDiv) titleDiv.style.display = 'none';
         if (subtitleDiv) subtitleDiv.style.display = 'none';
+        
+        if (this.isMobile()) {
+            // 移动端显示触摸操作提示
+            if (runHud) runHud.style.display = 'none';
+            if (runHudMobile) runHudMobile.style.display = 'block';
+            if (mainHud) mainHud.style.display = 'none';
+            if (mainHudMobile) mainHudMobile.style.display = 'none';
+        } else {
+            // 桌面端显示键盘操作提示
+            if (runHud) runHud.style.display = 'block';
+            if (runHudMobile) runHudMobile.style.display = 'none';
+            if (mainHud) mainHud.style.display = 'none';
+            if (mainHudMobile) mainHudMobile.style.display = 'none';
+        }
+        
         if (this.scoreElement) this.scoreElement.style.display = 'block';
     }
-
+    
     hideHUD() {
         const runHud = document.getElementById('run_hud');
-        if (runHud) runHud.style.display = 'none';
-        if (this.scoreElement) this.scoreElement.style.display = 'none';
+        const runHudMobile = document.getElementById('run_hud_mobile');
         const mainHud = document.getElementById('hud');
+        const mainHudMobile = document.getElementById('hud-mobile');
+        
+        if (runHud) runHud.style.display = 'none';
+        if (runHudMobile) runHudMobile.style.display = 'none';
+        if (this.scoreElement) this.scoreElement.style.display = 'none';
         if (mainHud) mainHud.style.display = 'none';
+        if (mainHudMobile) mainHudMobile.style.display = 'none';
         const runButton = document.getElementById('runButton');
         if (runButton) runButton.style.display = 'none';
     }
@@ -418,9 +439,15 @@ class RunGameScene {
     showGameOverUI() {
         const overlay = document.getElementById('gameOverOverlay');
         const scoreElement = document.getElementById('gameOverScore');
+        const hintElement = document.getElementById('gameOverHint');
         
         if (scoreElement) {
             scoreElement.textContent = Math.floor(this.score);
+        }
+        
+        // 移动端隐藏 "按 ENTER 重新开始" 提示
+        if (hintElement) {
+            hintElement.style.display = this.isMobile() ? 'none' : 'block';
         }
         
         if (overlay) {

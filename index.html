@@ -21,17 +21,23 @@
         <div id="subtitle">Loading...</div>
         <div id="version">v1.0.0</div>
         <div id="hud" class="hud-container">
-            <div>Shift - 冲刺</div>
-            <div>空格 - 跳跃</div>
-            <div>WASD - 移动</div>
-        </div>
-        <button id="runButton" class="game-button">RUN</button>
-        <div id="run_hud" class="hud-container">
-            <div>Shift - 冲刺</div>
-            <div>S/↓ - 滑铲</div>
-            <div>W/空格/↑ - 跳跃</div>
-            <div>A/D/←/→ - 切换跑道</div>
-        </div>
+        <div>Shift - 冲刺</div>
+        <div>空格 - 跳跃</div>
+        <div>WASD - 移动</div>
+    </div>
+    <button id="runButton" class="game-button">RUN</button>
+    <div id="run_hud" class="hud-container">
+        <div>Shift - 冲刺</div>
+        <div>S/↓ - 滑铲</div>
+        <div>W/空格/↑ - 跳跃</div>
+        <div>A/D/←/→ - 切换跑道</div>
+    </div>
+    <div id="run_hud_mobile" class="hud-container">
+        <div>左滑/右滑 - 切换跑道</div>
+        <div>上滑 - 跳跃</div>
+        <div>下滑 - 滑铲</div>
+        <div>双击 - 冲刺</div>
+    </div>
     </div>
     
     <!-- 功能按钮 -->
@@ -87,7 +93,7 @@
             <div class="gameover-title">GAME OVER</div>
             <div class="gameover-score-label">最终得分</div>
             <div class="gameover-score" id="gameOverScore">0</div>
-            <div class="gameover-hint">按 ENTER 重新开始</div>
+            <div class="gameover-hint" id="gameOverHint">按 ENTER 重新开始</div>
         </div>
     </div>
     

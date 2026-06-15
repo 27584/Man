@@ -130,6 +130,11 @@ body {
         0 0 20px rgba(255, 107, 107, 0.2);
 }
 
+/* 移动端 HU*/
+#run_hud_mobile {
+    display: none;
+}
+
 /* 按钮样式 */
 .game-button {
     display: none;
