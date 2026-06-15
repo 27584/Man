@@ -8,5 +8,9 @@
     "resizable": true,
     "fullscreen": false,
     "frame": true
+  },
+  "dependencies": {
+    "@tweenjs/tween.js": "^25.0.0",
+    "three": "^0.184.0"
   }
 }
