@@ -66,6 +66,16 @@ body {
     color: var(--accent-color); 
     animation: blink 1.5s ease-in-out infinite; 
     text-shadow: 0 0 15px rgba(255, 230, 109, 0.8);
+}
+
+#version {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    letter-spacing: 1px;
     font-weight: 500;
     letter-spacing: 4px;
 }
@@ -102,8 +112,8 @@ body {
 
 /* 主场景 HUD */
 #hud {
-    left: 24px;
-    border-left: 4px solid var(--secondary-color);
+    right: 24px;
+    border-right: 4px solid var(--secondary-color);
     box-shadow: 
         0 8px 32px var(--shadow-color),
         inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -205,6 +215,40 @@ body {
 /* 上传分数按钮默认隐藏 */
 #uploadScoreBtn {
     display: none;
+}
+
+/* GitHub 图标按钮样式 */
+.github-icon-btn {
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+    background: #24292e;
+    color: #ffffff;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 16px var(--shadow-color);
+    transition: all 0.3s ease;
+}
+
+.github-icon-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.github-icon-btn:hover {
+    background: #2d333b;
+    border-color: #3d444d;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.github-icon-btn:active {
+    transform: scale(0.95);
 }
 
 /* 自定义弹窗遮罩 */
@@ -496,6 +540,27 @@ body {
 }
 
 #closeLeaderboard:hover {
+    background: rgba(255, 107, 107, 0.3);
+    transform: rotate(90deg);
+}
+
+/* 更新日志关闭按钮 */
+#closeChangelog {
+    border: none;
+    background: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--light-text);
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#closeChangelog:hover {
     background: rgba(255, 107, 107, 0.3);
     transform: rotate(90deg);
 }

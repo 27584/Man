@@ -101,15 +101,17 @@ class RunGameScene {
         if (runButton) runButton.style.display = 'none';
     }
     
-    isAndroid() {
-        return /Android/i.test(navigator.userAgent);
+    isMobile() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /(android|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i.test(userAgent) ||
+               (navigator.maxTouchPoints > 0 && navigator.userAgent.indexOf('Mac') === -1);
     }
     
     showMobileRunButton() {
         const runButton = document.getElementById('runButton');
         if (!runButton) return;
         
-        if (this.isAndroid()) {
+        if (this.isMobile()) {
             runButton.style.display = 'block';
             runButton.onclick = () => {
                 this.game.enterRunGame();

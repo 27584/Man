@@ -18,10 +18,17 @@ class MainScene {
         this.walls = [];
         this.portal = null;
         this.isInitialized = false;
+        this.versionData = null;
 
         this.showHUD();
+        // 加载版本信息
+        this.loadVersionData();
         // 绑定排行榜按钮事件
         this.bindLeaderboardEvents();
+        // 绑定 GitHub 按钮事件
+        this.bindGithubEvents();
+        // 绑定更新日志按钮事件
+        this.bindChangelogEvents();
     }
 
     // 绑定排行榜弹窗事件
@@ -83,6 +90,81 @@ class MainScene {
         });
     }
 
+    // 绑定 GitHub 按钮事件
+    bindGithubEvents() {
+        const githubBtn = document.getElementById('githubBtn');
+        if (!githubBtn) return;
+        
+        githubBtn.addEventListener('click', () => {
+            window.open('https://github.com/27584/Man', '_blank');
+        });
+    }
+
+    // 加载版本信息
+    async loadVersionData() {
+        try {
+            const res = await fetch('version.json');
+            this.versionData = await res.json();
+            
+            // 更新版本号显示
+            const versionElement = document.getElementById('version');
+            if (versionElement && this.versionData.version) {
+                versionElement.textContent = this.versionData.version;
+            }
+        } catch (err) {
+            console.error('加载版本信息失败:', err);
+        }
+    }
+
+    // 绑定更新日志按钮事件
+    bindChangelogEvents() {
+        const btn = document.getElementById('changelogBtn');
+        const modal = document.getElementById('changelogModal');
+        const closeBtn = document.getElementById('closeChangelog');
+        const content = document.getElementById('changelogContent');
+
+        if (!btn || !modal || !closeBtn || !content) return;
+
+        btn.addEventListener('click', async () => {
+            modal.classList.add('active');
+            content.innerHTML = '加载中...';
+            
+            if (!this.versionData) {
+                await this.loadVersionData();
+            }
+            
+            if (this.versionData && this.versionData.changelog) {
+                let html = '';
+                this.versionData.changelog.forEach((entry) => {
+                    html += `
+                        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <div style="font-size: 18px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px;">
+                                ${entry.version}
+                            </div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">
+                                ${entry.date}
+                            </div>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                    `;
+                    entry.changes.forEach((change) => {
+                        html += `<li style="font-size: 14px; color: var(--light-text); margin: 6px 0; padding-left: 16px; position: relative;">
+                            <span style="position: absolute; left: 0; color: var(--secondary-color);">•</span>
+                            ${change}
+                        </li>`;
+                    });
+                    html += '</ul></div>';
+                });
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<p style="color: rgba(255,255,255,0.6);">加载失败</p>';
+            }
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
+
     init() {
         this.setupScene();
         this.setupCamera();
@@ -109,15 +191,17 @@ class MainScene {
         this.setupMobileRunButton();
     }
     
-    isAndroid() {
-        return /Android/i.test(navigator.userAgent);
+    isMobile() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /(android|iphone|ipad|ipod|blackberry|iemobile|opera mini)/i.test(userAgent) ||
+               (navigator.maxTouchPoints > 0 && navigator.userAgent.indexOf('Mac') === -1);
     }
     
     setupMobileRunButton() {
         const runButton = document.getElementById('runButton');
         if (!runButton) return;
         
-        if (this.isAndroid()) {
+        if (this.isMobile()) {
             runButton.style.display = 'block';
             runButton.onclick = () => {
                 this.game.enterRunGame();
