@@ -688,6 +688,40 @@ body {
     line-height: 1.8;
 }
 
+/* 排行榜表格 */
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--primary-color);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+.leaderboard-table th:last-child {
+    text-align: right;
+}
+
+.leaderboard-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
+}
+
+.leaderboard-table td:last-child {
+    text-align: right;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.leaderboard-table tr:hover td {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 /* 动画效果 */
 @keyframes blink { 
     0%, 100% { opacity: 1; } 

@@ -3,6 +3,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.m
 import Camera from '../core/camera.js';
 import Player from '../core/player.js';
 import Portal from '../entities/portal.js';
+import { VERSION_DATA } from '../version.js';
 
 class MainScene {
     static GROUND_Y = 0;
@@ -60,20 +61,20 @@ class MainScene {
                     content.innerHTML = "<p>暂无数据</p>";
                     return;
                 }
-                let html = `<table style="width:100%;border-collapse:collapse;">
+                let html = `<table class="leaderboard-table">
                   <thead>
-                    <tr style="border-bottom:1px solid #ccc;">
-                      <th style="text-align:left;padding:4px;">排名</th>
-                      <th style="text-align:left;padding:4px;">昵称</th>
-                      <th style="text-align:right;padding:4px;">分数</th>
+                    <tr>
+                      <th>排名</th>
+                      <th>昵称</th>
+                      <th>分数</th>
                     </tr>
                   </thead>
                   <tbody>`;
                 list.forEach((item, idx) => {
-                    html += `<tr style="border-bottom:1px solid #eee;">
-                      <td style="padding:4px;">${idx+1}</td>
-                      <td style="padding:4px;">${item.nickname}</td>
-                      <td style="text-align:right;padding:4px;">${item.score}</td>
+                    html += `<tr>
+                      <td>${idx+1}</td>
+                      <td>${item.nickname}</td>
+                      <td>${item.score}</td>
                     </tr>`;
                 });
                 html += `</tbody></table>`;
@@ -101,29 +102,18 @@ class MainScene {
     }
 
     // 加载版本信息
-    async loadVersionData() {
-        try {
-            const res = await fetch('version.json');
-            this.versionData = await res.json();
-            
-            const version = this.versionData.version || 'v1.0.0';
-            
-            // 更新浏览器标签页标题
-            document.title = `Man! ${version}`;
-            
-            // 更新版本号显示
-            const versionElement = document.getElementById('version');
-            if (versionElement) {
-                versionElement.textContent = version;
-            }
-            
-            // 更新 title 中的版本号
-            const titleVersion = document.getElementById('titleVersion');
-            if (titleVersion) {
-                titleVersion.textContent = version;
-            }
-        } catch (err) {
-            console.error('加载版本信息失败:', err);
+    loadVersionData() {
+        this.versionData = VERSION_DATA;
+        
+        const version = this.versionData.version || 'v1.0.0';
+        
+        // 更新浏览器标签页标题
+        document.title = `Man! ${version}`;
+        
+        // 更新版本号显示
+        const versionElement = document.getElementById('version');
+        if (versionElement) {
+            versionElement.textContent = version;
         }
     }
 
@@ -136,13 +126,8 @@ class MainScene {
 
         if (!btn || !modal || !closeBtn || !content) return;
 
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', () => {
             modal.classList.add('active');
-            content.innerHTML = '加载中...';
-            
-            if (!this.versionData) {
-                await this.loadVersionData();
-            }
             
             if (this.versionData && this.versionData.changelog) {
                 let html = '';
