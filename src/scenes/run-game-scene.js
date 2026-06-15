@@ -52,6 +52,9 @@ class RunGameScene {
         this.isUploadingScore = false;
         this.SUPABASE_ANON_KEY = "sb_publishable_5GQK7A-LKm6QyGheeqYksA_S7FnMdFd";
         this.SUPABASE_FUNC_URL = "https://wshazyyuenmktoxzaxmx.supabase.co/functions/v1/score_rank";
+        
+        // 显示加载 UI
+        this.showLoadingUI();
     }
     
     init() {
@@ -77,8 +80,27 @@ class RunGameScene {
         this.hideHUD();
         
         this.coinGenerator = new CoinGenerator(this);
+        
+        // 隐藏加载 UI
+        this.hideLoadingUI();
     }
     
+    // 显示加载 UI
+    showLoadingUI() {
+        const loading = document.getElementById('runGameLoading');
+        if (loading) {
+            loading.classList.add('active');
+        }
+    }
+
+    // 隐藏加载 UI
+    hideLoadingUI() {
+        const loading = document.getElementById('runGameLoading');
+        if (loading) {
+            loading.classList.remove('active');
+        }
+    }
+
     showHUD() {
         const runHud = document.getElementById('run_hud');
         const runHudMobile = document.getElementById('run_hud_mobile');
