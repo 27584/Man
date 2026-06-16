@@ -7,6 +7,7 @@ package-lock.json
 Thumbs.db
 
 # Build outputs
+android/
 dist/
 build/
 *.log

@@ -449,6 +449,13 @@ body {
     box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
 }
 
+.loading-spinner.small {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+    margin-bottom: 12px;
+}
+
 .loading-text {
     font-size: 24px;
     color: rgba(255, 255, 255, 0.8);
@@ -611,6 +618,22 @@ body {
     100% { background-position: 200% center; }
 }
 
+/* 排行榜加载动画 */
+.leaderboard-loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.leaderboard-loading .loading-text {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0;
+    letter-spacing: 1px;
+}
+
 /* 排行榜弹窗 */
 #leaderboardModal {
     display: none;
@@ -622,14 +645,23 @@ body {
     color: var(--light-text);
     padding: 32px;
     border-radius: 16px;
-    min-width: 320px;
-    max-width: 420px;
+    min-width: 280px;
+    max-width: 90vw;
+    max-height: 80vh;
     z-index: 10000;
     box-shadow: 
         0 20px 60px var(--shadow-color),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(16px);
+    overflow: hidden;
+}
+
+#leaderboardModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
 #leaderboardModal h3 {
@@ -686,40 +718,136 @@ body {
     font-family: 'Consolas', 'Monaco', monospace;
     font-size: 14px;
     line-height: 1.8;
+    max-height: calc(80vh - 100px);
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+#leaderboardContent::-webkit-scrollbar {
+    width: 6px;
+}
+
+#leaderboardContent::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+#leaderboardContent::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 107, 0.5);
+    border-radius: 3px;
+}
+
+#leaderboardContent::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 107, 0.7);
+}
+
+/* 排行榜分页标签 */
+.leaderboard-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.tab-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-bg);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #ee5a24 100%);
+    border-color: transparent;
+    color: var(--light-text);
+    box-shadow: 0 4px 12px var(--glow-primary);
+}
+
+.tab-btn.active:hover {
+    transform: scale(1.05);
 }
 
 /* 排行榜表格 */
 .leaderboard-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .leaderboard-table th {
     text-align: left;
-    padding: 8px 12px;
+    padding: 10px 8px;
     border-bottom: 2px solid var(--primary-color);
     color: rgba(255, 255, 255, 0.9);
     font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.leaderboard-table th:first-child {
+    width: 50px;
 }
 
 .leaderboard-table th:last-child {
     text-align: right;
+    width: 80px;
 }
 
 .leaderboard-table td {
-    padding: 8px 12px;
+    padding: 10px 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--light-text);
+    font-size: 13px;
+}
+
+.leaderboard-table td:first-child {
+    width: 50px;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.leaderboard-table td:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .leaderboard-table td:last-child {
     text-align: right;
     color: var(--accent-color);
     font-weight: 600;
+    width: 80px;
+    white-space: nowrap;
 }
 
 .leaderboard-table tr:hover td {
     background: rgba(255, 255, 255, 0.05);
+}
+
+/* 神仙榜特殊样式 */
+.god-table th {
+    border-bottom-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.god-table td:last-child {
+    color: var(--accent-color);
+    text-shadow: 0 0 8px rgba(255, 230, 109, 0.5);
+}
+
+.god-table tr:hover td {
+    background: rgba(255, 230, 109, 0.1);
 }
 
 /* 动画效果 */

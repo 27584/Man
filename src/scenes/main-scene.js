@@ -3,6 +3,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.m
 import Camera from '../core/camera.js';
 import Player from '../core/player.js';
 import Portal from '../entities/portal.js';
+import LeaderboardManager from '../managers/leaderboard.js';
 import { VERSION_DATA } from '../version.js';
 
 class MainScene {
@@ -22,73 +23,10 @@ class MainScene {
         this.versionData = null;
 
         this.showHUD();
-        // 加载版本信息
         this.loadVersionData();
-        // 绑定排行榜按钮事件
-        this.bindLeaderboardEvents();
-        // 绑定 GitHub 按钮事件
+        this.leaderboardManager = new LeaderboardManager();
         this.bindGithubEvents();
-        // 绑定更新日志按钮事件
         this.bindChangelogEvents();
-    }
-
-    // 绑定排行榜弹窗事件
-    bindLeaderboardEvents() {
-        const btn = document.getElementById('leaderboardBtn');
-        const modal = document.getElementById('leaderboardModal');
-        const closeBtn = document.getElementById('closeLeaderboard');
-        const content = document.getElementById('leaderboardContent');
-
-        if (!btn || !modal || !closeBtn || !content) return;
-
-        // 打开弹窗并加载数据
-        btn.addEventListener('click', async () => {
-            modal.style.display = 'block';
-            content.innerText = '加载中...';
-            try {
-                // anon key
-                const ANON_KEY = "sb_publishable_5GQK7A-LKm6QyGheeqYksA_S7FnMdFd";
-                const res = await fetch("https://wshazyyuenmktoxzaxmx.supabase.co/functions/v1/score_rank?limit=20", {
-                    headers: {
-                        Authorization: `Bearer ${ANON_KEY}`
-                    }
-                });
-                const json = await res.json();
-                if (!res.ok) throw new Error(json.error || '请求失败');
-
-                const list = json.leaderboard || [];
-                if (list.length === 0) {
-                    content.innerHTML = "<p>暂无数据</p>";
-                    return;
-                }
-                let html = `<table class="leaderboard-table">
-                  <thead>
-                    <tr>
-                      <th>排名</th>
-                      <th>昵称</th>
-                      <th>分数</th>
-                    </tr>
-                  </thead>
-                  <tbody>`;
-                list.forEach((item, idx) => {
-                    html += `<tr>
-                      <td>${idx+1}</td>
-                      <td>${item.nickname}</td>
-                      <td>${item.score}</td>
-                    </tr>`;
-                });
-                html += `</tbody></table>`;
-                content.innerHTML = html;
-            } catch (err) {
-                content.innerText = '加载失败：' + err.message;
-                console.error(err);
-            }
-        });
-
-        // 关闭弹窗
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
     }
 
     // 绑定 GitHub 按钮事件
