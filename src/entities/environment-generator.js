@@ -80,7 +80,7 @@ class EnvironmentGenerator {
         const loader = new THREE.TextureLoader();
         loader.load('assets/textures/skybox.png', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
-            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.encoding = THREE.sRGBEncoding;
             this.scene.scene.background = texture;
         });
     }

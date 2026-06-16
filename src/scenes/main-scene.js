@@ -181,7 +181,7 @@ class MainScene {
         const loader = new THREE.TextureLoader();
         loader.load('assets/textures/skybox.png', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
-            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.encoding = THREE.sRGBEncoding;
             this.scene.background = texture;
         });
     }
@@ -262,6 +262,9 @@ class MainScene {
             this.player.setCamera(this.camera);
             this.camera.setTarget(this.player.getPosition());
             this.game.camera = this.camera.camera;
+        }).catch((error) => {
+            console.warn('Player model load failed:', error);
+            this.player.isLoaded = true;
         });
     }
 

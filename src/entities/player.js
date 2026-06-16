@@ -181,7 +181,8 @@ class Player {
     
     load() {
         const loader = new GLTFLoader();
-        loader.load('assets/models/kobe.glb', (gltf) => {
+        
+        const onLoadSuccess = (gltf) => {
             this.model = gltf.scene;
             
             if (this.scene.cgManager) {
@@ -220,13 +221,40 @@ class Player {
             }
             
             if (this.scene.cgManager) {
-                this.scene.cgManager.checkCGStart();
+                this.scene.cgManager.markPlayerLoaded();
             }
             
             if (this.onLoadCallback) {
                 this.onLoadCallback();
             }
-        });
+        };
+        
+        const onLoadError = (error) => {
+            console.warn('Player model load failed:', error);
+            this.createFallbackModel();
+            if (this.scene.cgManager) {
+                this.scene.cgManager.markPlayerLoaded();
+            }
+            if (this.onLoadCallback) {
+                this.onLoadCallback();
+            }
+        };
+        
+        loader.load('assets/models/kobe.glb', onLoadSuccess, undefined, onLoadError);
+    }
+    
+    createFallbackModel() {
+        const geometry = new THREE.BoxGeometry(1, 1.6, 1);
+        const material = new THREE.MeshStandardMaterial({ color: 0xff6b6b });
+        this.model = new THREE.Mesh(geometry, material);
+        this.model.position.set(0, 0.8, 0);
+        this.scene.scene.add(this.model);
+        
+        const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+        const headMaterial = new THREE.MeshStandardMaterial({ color: 0xffccaa });
+        const head = new THREE.Mesh(headGeometry, headMaterial);
+        head.position.set(0, 1.8, 0);
+        this.model.add(head);
     }
     
     tryCross() {

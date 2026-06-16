@@ -50,6 +50,7 @@ class RunGameScene {
         // 上传分数按钮相关
         this.uploadScoreBtn = null;
         this.isUploadingScore = false;
+        this.isScoreSubmitted = false;
         this.SUPABASE_ANON_KEY = "sb_publishable_5GQK7A-LKm6QyGheeqYksA_S7FnMdFd";
         this.SUPABASE_FUNC_URL = "https://wshazyyuenmktoxzaxmx.supabase.co/functions/v1/score_rank";
         
@@ -66,13 +67,14 @@ class RunGameScene {
         this.createCamera();
         
         this.cgManager = new CGManager(this);
+        this.cgManager.onModelsLoaded = () => {
+            this.hideLoadingUI();
+        };
         
         this.createLighting();
         this.createPlayer();
         this.createChaser();
         this.createUI();
-        
-
         
         this.playerZ = 0;
         
@@ -80,9 +82,6 @@ class RunGameScene {
         this.hideHUD();
         
         this.coinGenerator = new CoinGenerator(this);
-        
-        // 隐藏加载 UI
-        this.hideLoadingUI();
     }
     
     // 显示加载 UI
@@ -374,7 +373,7 @@ class RunGameScene {
     
     // 上传分数方法
     async uploadScore(nickname) {
-        if (this.isUploadingScore) return;
+        if (this.isUploadingScore || this.isScoreSubmitted) return;
         this.isUploadingScore = true;
         this.hideNicknameModal();
         if (this.uploadScoreBtn) {
@@ -394,6 +393,7 @@ class RunGameScene {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "上传失败");
+            this.isScoreSubmitted = true;
             this.showToast(data.message || "分数上传成功！", "success");
         } catch (err) {
             console.error(err);
@@ -401,8 +401,8 @@ class RunGameScene {
         } finally {
             this.isUploadingScore = false;
             if (this.uploadScoreBtn) {
-                this.uploadScoreBtn.disabled = false;
-                this.uploadScoreBtn.textContent = "上传我的分数";
+                this.uploadScoreBtn.disabled = this.isScoreSubmitted;
+                this.uploadScoreBtn.textContent = this.isScoreSubmitted ? "已提交" : "上传我的分数";
             }
         }
     }
@@ -603,6 +603,7 @@ class RunGameScene {
         
         this.obstacleGenerator.obstacles = [];
         this.isGameOver = true;
+        this.isScoreSubmitted = false;
     }
 }
 

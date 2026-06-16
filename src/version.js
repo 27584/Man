@@ -1,10 +1,11 @@
 export const VERSION_DATA = {
-    version: "v1.1.0",
+    version: "v1.1.2",
     changelog: [    {
-            version: "v1.1.0",
+            version: "v1.1.2",
             date: "2026-06-16",
             changes: [
-                "新增神仙榜"
+                "新增神仙榜",
+                "修复若干Bug"
             ]
         },
         {

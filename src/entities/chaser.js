@@ -19,7 +19,8 @@ class Chaser {
     
     load() {
         const loader = new GLTFLoader();
-        loader.load('assets/models/doubao.glb', (gltf) => {
+        
+        const onLoadSuccess = (gltf) => {
             this.model = gltf.scene;
             
             if (this.scene.cgManager) {
@@ -56,13 +57,44 @@ class Chaser {
             }
             
             if (this.scene.cgManager) {
-                this.scene.cgManager.checkCGStart();
+                this.scene.cgManager.markChaserLoaded();
             }
             
             if (this.onLoadCallback) {
                 this.onLoadCallback();
             }
-        });
+        };
+        
+        const onLoadError = (error) => {
+            console.warn('Chaser model load failed:', error);
+            this.createFallbackModel();
+            if (this.scene.cgManager) {
+                this.scene.cgManager.markChaserLoaded();
+            }
+            if (this.onLoadCallback) {
+                this.onLoadCallback();
+            }
+        };
+        
+        loader.load('assets/models/doubao.glb', onLoadSuccess, undefined, onLoadError);
+    }
+    
+    createFallbackModel() {
+        const geometry = new THREE.BoxGeometry(1.2, 1.6, 1.2);
+        const material = new THREE.MeshStandardMaterial({ color: 0x4444ff });
+        this.model = new THREE.Mesh(geometry, material);
+        this.model.position.set(0, 0.8, -15);
+        this.scene.scene.add(this.model);
+        
+        const eyeGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+        const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xff0000, emissiveIntensity: 0.5 });
+        const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        leftEye.position.set(-0.3, 1.2, 0.5);
+        this.model.add(leftEye);
+        
+        const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        rightEye.position.set(0.3, 1.2, 0.5);
+        this.model.add(rightEye);
     }
     
     update(deltaTime, gameSpeed, playerZ, targetTrack, isGameOver) {

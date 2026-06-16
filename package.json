@@ -1,0 +1,12 @@
+{
+  "name": "man",
+  "main": "index.html",
+  "window": {
+    "title": "Man!",
+    "width": 1280,
+    "height": 800,
+    "resizable": true,
+    "fullscreen": false,
+    "frame": true
+  }
+}

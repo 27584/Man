@@ -23,12 +23,40 @@ class CGManager {
         this.currentAudio = null;
         this.cgAudioTimer = 0;
         this.cgAudioPlayed = [];
+        
+        this.playerLoaded = false;
+        this.chaserLoaded = false;
+        this.CG_TIMEOUT = 10000;
+        this.startTime = performance.now();
+        this.onModelsLoaded = null;
+    }
+
+    markPlayerLoaded() {
+        this.playerLoaded = true;
+        this.checkCGStart();
+    }
+
+    markChaserLoaded() {
+        this.chaserLoaded = true;
+        this.checkCGStart();
     }
 
     checkCGStart() {
-        if (this.scene.player && this.scene.chaser && !this.CG_START_TIME) {
-            this.CG_START_TIME = performance.now();
-            this.initAudio();
+        if (!this.CG_START_TIME) {
+            const elapsed = performance.now() - this.startTime;
+            
+            if (elapsed >= this.CG_TIMEOUT) {
+                this.CG_START_TIME = performance.now();
+                this.initAudio();
+                if (this.onModelsLoaded) this.onModelsLoaded();
+                return;
+            }
+            
+            if (this.playerLoaded && this.chaserLoaded) {
+                this.CG_START_TIME = performance.now();
+                this.initAudio();
+                if (this.onModelsLoaded) this.onModelsLoaded();
+            }
         }
     }
 
@@ -95,9 +123,9 @@ class CGManager {
             (playerPos.z + chaserPos.z) / 2
         );
         
-        let phase1End = 0.6;
-        let phase2End = 0.2;
-        let phase3End = 0.2;
+        const phase1End = 0.6;
+        const phase2End = phase1End + 0.2;
+        const phase3End = phase2End + 0.2;
         
         let lookAtFront = false;
         
@@ -255,6 +283,10 @@ class CGManager {
         this.cgAudioPlayed = [];
         this.cameraOffset = new THREE.Vector3(0, 8, -15);
         this.targetCameraOffset = new THREE.Vector3(0, 8, -15);
+        
+        this.playerLoaded = false;
+        this.chaserLoaded = false;
+        this.startTime = performance.now();
         
         if (this.currentAudio) {
             this.currentAudio.stop();
