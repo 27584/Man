@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+import * as THREE from 'three';
 import MainScene from '../scenes/main-scene.js';
 import RunGameScene from '../scenes/run-game-scene.js';
 
