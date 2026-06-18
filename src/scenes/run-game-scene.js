@@ -71,6 +71,7 @@ class RunGameScene {
         this.isPermissionDenied = false;
         this.listenRetryCount = 0;
         this.hasAskedPermission = false;
+        this.isRequestingPermission = false;
         
         // 显示加载 UI
         this.showLoadingUI();
@@ -269,8 +270,17 @@ class RunGameScene {
         this.recognition.onerror = (event) => {
             console.log('语音识别错误:', event.error);
             if (event.error === 'not-allowed' || event.error === 'permission-denied') {
-                this.isPermissionDenied = true;
-                this.showToast('麦克风权限已被拒绝', 'error');
+                if (this.isMobile()) {
+                    setTimeout(() => {
+                        if (!this.isListening) {
+                            this.isPermissionDenied = true;
+                            this.showToast('麦克风权限已被拒绝', 'error');
+                        }
+                    }, 1000);
+                } else {
+                    this.isPermissionDenied = true;
+                    this.showToast('麦克风权限已被拒绝', 'error');
+                }
             }
         };
         
@@ -299,16 +309,27 @@ class RunGameScene {
     
     startListening() {
         if (this.isPermissionDenied) return;
+        if (this.isRequestingPermission) return;
         if (this.recognition && !this.isListening && !this.isGameOver) {
             try {
+                this.isRequestingPermission = true;
                 this.recognition.start();
                 this.isListening = true;
                 this.listenRetryCount = 0;
                 this.hasAskedPermission = true;
+                this.isRequestingPermission = false;
             } catch (e) {
                 console.log('语音识别启动失败:', e);
+                this.isRequestingPermission = false;
                 this.listenRetryCount++;
-                if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                if (this.isMobile()) {
+                    setTimeout(() => {
+                        if (!this.isListening) {
+                            this.isPermissionDenied = true;
+                            this.showToast('麦克风权限已被拒绝', 'error');
+                        }
+                    }, 1000);
+                } else if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
                     this.isPermissionDenied = true;
                     this.showToast('麦克风权限已被拒绝', 'error');
                 }
