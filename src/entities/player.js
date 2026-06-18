@@ -33,11 +33,11 @@ class Player {
         this.slideCooldown = 0;
         this.SLIDE_COOLDOWN_TIME = 0.3;
         
-        this.keys = {};
         this.touchStartX = 0;
         this.touchStartY = 0;
         this.touchStartTime = 0;
         this.lastTapTime = 0;
+        
         this.setupInputListeners();
     }
     
@@ -297,9 +297,12 @@ class Player {
         this.isSliding = true;
         this.slideCooldown = this.SLIDE_COOLDOWN_TIME;
         if (this.animations['sprint']) this.animations['sprint'].stop();
-        this.animations['sliding_tackle'].stop();
-        this.animations['sliding_tackle'].reset();
-        this.animations['sliding_tackle'].play();
+        
+        if (this.animations['sliding_tackle']) {
+            this.animations['sliding_tackle'].stop();
+            this.animations['sliding_tackle'].reset();
+            this.animations['sliding_tackle'].play();
+        }
     }
     
     stopSliding() {
@@ -309,6 +312,7 @@ class Player {
         if (this.model && !this.isCrossing) {
             this.model.position.y = 0.8;
         }
+        
         if (this.animations && this.animations['sprint']) {
             this.animations['sprint'].reset();
             this.animations['sprint'].play();
@@ -322,36 +326,8 @@ class Player {
         this.sprintDuration = this.SPRINT_DURATION_TIME;
         this.sprintCooldown = this.SPRINT_COOLDOWN_TIME;
         this.sprintSpeedBoost = gameSpeed * this.SPRINT_SPEED_MULTIPLIER;
-  
     }
     
-    updateSprintAnimationSpeed(gameSpeed) {
-        //此处有点问题，先不用了
-        return;
-    if (!this.animations || !this.animations['sprint']) return;
-    
-    if (this.isSprinting) {
-        this.animations['sprint'].playbackRate = 3.0;
-        return;
-    }
-    
-    if (this.isCrossing || this.isSliding) {
-        return;
-    }
-    
-  
-    const GAME_SPEED_MIN = 12;
-    const GAME_SPEED_MAX = 25;
-    const ANIM_SPEED_MIN = 1.0;
-    const ANIM_SPEED_MAX = 2.0;
-    
-    const normalizedSpeed = Math.min(1, Math.max(0, 
-        (gameSpeed - GAME_SPEED_MIN) / (GAME_SPEED_MAX - GAME_SPEED_MIN)
-    ));
-    
-    this.animations['sprint'].playbackRate = 
-        ANIM_SPEED_MIN + (ANIM_SPEED_MAX - ANIM_SPEED_MIN) * normalizedSpeed;
-}
     updateSprint(deltaTime, gameSpeed) {
         if (!this.isSprinting) {
             if (this.sprintCooldown > 0) {
@@ -366,9 +342,6 @@ class Player {
         
         if (this.sprintDuration <= 0) {
             this.isSprinting = false;
-            if (this.animations && this.animations['sprint']) {
-                this.updateSprintAnimationSpeed(gameSpeed);
-            }
         }
         
         return boostDistance;
@@ -389,12 +362,10 @@ class Player {
         
         if (isGameOver) return { position: this.model.position, boostDistance };
         
-        // 更新位置
         const targetX = (this.targetTrack - 1) * this.TRACK_WIDTH;
         this.model.position.x += (targetX - this.model.position.x) * 12 * deltaTime;
         this.model.position.z = playerZ + boostDistance;
         
-        // 跳跃逻辑
         if (this.landingGraceTimer > 0) {
             this.landingGraceTimer -= deltaTime;
         }
@@ -410,7 +381,9 @@ class Player {
                 this.crossJumpElapsed = 0;
                 this.landingGraceTimer = this.LANDING_GRACE;
                 this.model.position.y = 0.8;
+                
                 if (this.animations['cross']) this.animations['cross'].stop();
+                
                 if (this.animations && this.animations['sprint']) {
                     this.animations['sprint'].reset();
                     this.animations['sprint'].play();
@@ -418,15 +391,16 @@ class Player {
             }
         } else if (this.isSliding) {
             this.model.position.y = 0.3;
-            const action = this.animations['sliding_tackle'];
-            if (action && action.time >= action.getClip().duration - 0.001) {
-                this.stopSliding();
+            
+            if (this.animations['sliding_tackle']) {
+                const action = this.animations['sliding_tackle'];
+                if (action.time >= action.getClip().duration - 0.001) {
+                    this.stopSliding();
+                }
             }
         } else {
             this.model.position.y = 0.8;
         }
-        
-        this.updateSprintAnimationSpeed(gameSpeed);
         
         return { position: this.model.position, boostDistance };
     }
@@ -467,7 +441,6 @@ class Player {
                 overAction.setLoop(THREE.LoopOnce);
                 overAction.clampWhenFinished = true;
                 overAction.play();
-                
             }
         }
     }

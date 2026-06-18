@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import MainScene from '../scenes/main-scene.js';
 import RunGameScene from '../scenes/run-game-scene.js';
+import { styleManager } from '../shaders/style-manager.js';
 
 class Game {
     constructor(canvas) {
@@ -13,6 +14,8 @@ class Game {
         this.setupCanvas();
         this.setupRenderer();
         this.start();
+        
+        this.isGestureMode = false;
     }
 
     setupCanvas() {
@@ -78,15 +81,63 @@ class Game {
         
         if (!camera) return;
         
-        this.renderer.render(threeScene, camera);
+        if (!styleManager.composer) {
+            styleManager.initComposer(this.renderer, threeScene, camera);
+            styleManager.applyCurrentStyle();
+        } else {
+            const renderPass = styleManager.composer.passes[0];
+            if (renderPass) {
+                renderPass.scene = threeScene;
+                renderPass.camera = camera;
+            }
+        }
+        
+        styleManager.update();
+        if (!styleManager.render()) {
+            this.renderer.render(threeScene, camera);
+        }
     }
 
     enterRunGame() {
         if (this.scene && typeof this.scene.destroy === 'function') {
             this.scene.destroy();
         }
-        this.scene = new RunGameScene(this);
+        this.scene = new RunGameScene(this, this.isGestureMode);
         this.scene.init();
+    }
+    
+    enterGestureGame() {
+        if (this.scene && typeof this.scene.destroy === 'function') {
+            this.scene.destroy();
+        }
+        this.scene = new RunGameScene(this, true);
+        this.scene.init();
+    }
+    
+    toggleGestureMode() {
+        this.isGestureMode = !this.isGestureMode;
+        this.updateGestureToggleBtn();
+        return this.isGestureMode;
+    }
+    
+    setGestureMode(enabled) {
+        this.isGestureMode = enabled;
+        this.updateGestureToggleBtn();
+    }
+    
+    updateGestureToggleBtn() {
+        const btn = document.getElementById('gestureToggleBtn');
+        if (btn) {
+            if (this.isGestureMode) {
+                btn.style.backgroundColor = '#00ffff';
+                btn.style.color = '#000';
+                btn.textContent = '🤏 ON';
+            } else {
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+                btn.textContent = '🤏';
+            }
+        }
     }
 
     returnToMainMenu() {
@@ -95,6 +146,7 @@ class Game {
         }
         this.scene = new MainScene(this);
         this.scene.init();
+        this.applyGlobalShader();
     }
 
     destroy() {

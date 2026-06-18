@@ -39,7 +39,11 @@ class Camera {
 
         canvas.addEventListener('click', () => {
             if (!this.isPointerLocked) {
-                canvas.requestPointerLock();
+                try {
+                    canvas.requestPointerLock();
+                } catch (error) {
+                    console.warn('Pointer lock request failed:', error.message);
+                }
             }
         });
     }

@@ -6,9 +6,10 @@ import EnvironmentGenerator from '../entities/environment-generator.js';
 import CGManager from '../managers/cg-manager.js';
 import Chaser from '../entities/chaser.js';
 import Player from '../entities/player.js';
+import GestureService from '../services/gesture-service.js';
 
 class RunGameScene {
-    constructor(game) {
+    constructor(game, useGestureMode = false) {
         this.game = game;
         this.scene = new THREE.Scene();
         this.camera = null;
@@ -24,7 +25,7 @@ class RunGameScene {
         this.PLAYER_START_TRACK = 1;
         this.targetTrack = this.PLAYER_START_TRACK;
         
-        this.slideCooldown = 0;
+   
         
         this.playerZ = 0;
         
@@ -54,6 +55,10 @@ class RunGameScene {
         this.SUPABASE_ANON_KEY = "sb_publishable_5GQK7A-LKm6QyGheeqYksA_S7FnMdFd";
         this.SUPABASE_FUNC_URL = "https://wshazyyuenmktoxzaxmx.supabase.co/functions/v1/score_rank";
         
+        // 手势模式
+        this.useGestureMode = useGestureMode;
+        this.gestureService = null;
+        
         // 显示加载 UI
         this.showLoadingUI();
     }
@@ -69,6 +74,9 @@ class RunGameScene {
         this.cgManager = new CGManager(this);
         this.cgManager.onModelsLoaded = () => {
             this.hideLoadingUI();
+            if (this.useGestureMode) {
+                this.initGestureMode();
+            }
         };
         
         this.createLighting();
@@ -82,6 +90,39 @@ class RunGameScene {
         this.hideHUD();
         
         this.coinGenerator = new CoinGenerator(this);
+    }
+    
+    async initGestureMode() {
+        this.gestureService = new GestureService();
+        this.gestureService.setCallbacks({
+            onSwipeLeft: () => {
+                if (!this.isGameOver && !this.cgManager.isPlaying()) {
+                    this.player.targetTrack = Math.max(0, this.player.targetTrack - 1);
+                }
+            },
+            onSwipeRight: () => {
+                if (!this.isGameOver && !this.cgManager.isPlaying()) {
+                    this.player.targetTrack = Math.min(2, this.player.targetTrack + 1);
+                }
+            },
+            onSwipeUp: () => {
+                if (!this.isGameOver && !this.cgManager.isPlaying()) {
+                    this.player.tryCross();
+                }
+            },
+            onSwipeDown: () => {
+                if (!this.isGameOver && !this.cgManager.isPlaying() && !this.player.isSliding && this.player.slideCooldown <= 0) {
+                    this.player.startSliding();
+                }
+            }
+        });
+        
+        try {
+            await this.gestureService.start();
+        } catch (error) {
+            console.error('Failed to start gesture mode:', error);
+            this.showToast('手势模式启动失败，请使用键盘或触屏操作', 'error');
+        }
     }
     
     // 显示加载 UI
@@ -392,7 +433,7 @@ class RunGameScene {
                 body: JSON.stringify({ nickname, score: finalScore })
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "上传失败");
+            if (data.status !== 'success') throw new Error(data.error || "上传失败");
             this.isScoreSubmitted = true;
             this.showToast(data.message || "分数上传成功！", "success");
         } catch (err) {
@@ -516,7 +557,11 @@ class RunGameScene {
         
         if (restartBtn) {
             restartBtn.onclick = () => {
-                this.game.enterRunGame();
+                if (this.useGestureMode) {
+                    this.game.enterGestureGame();
+                } else {
+                    this.game.enterRunGame();
+                }
             };
         }
         
@@ -556,6 +601,11 @@ class RunGameScene {
         
         if (this._onRestart) {
             window.removeEventListener('keydown', this._onRestart);
+        }
+
+        if (this.gestureService) {
+            this.gestureService.destroy();
+            this.gestureService = null;
         }
 
         // 隐藏上传按钮
@@ -604,6 +654,10 @@ class RunGameScene {
         this.obstacleGenerator.obstacles = [];
         this.isGameOver = true;
         this.isScoreSubmitted = false;
+        if (this.uploadScoreBtn) {
+                this.uploadScoreBtn.disabled = this.isScoreSubmitted;
+                this.uploadScoreBtn.textContent = this.isScoreSubmitted ? "已提交" : "上传我的分数";
+            }
     }
 }
 

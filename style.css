@@ -256,6 +256,11 @@ body {
     transform: scale(0.95);
 }
 
+#settingsBtn svg {
+    width: 20px;
+    height: 20px;
+}
+
 /* 自定义弹窗遮罩 */
 .modal-overlay {
     display: none;
@@ -861,6 +866,147 @@ body {
     50% { transform: scale(1.05); }
 }
 
+/* 设置面板样式 */
+.settings-content {
+    min-width: 400px;
+    max-width: 500px;
+}
+
+#closeSettings {
+    border: none;
+    background: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--light-text);
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#closeSettings:hover {
+    background: rgba(255, 107, 107, 0.3);
+    transform: rotate(90deg);
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-section h4 {
+    font-size: 16px;
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.style-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.style-option {
+    padding: 0;
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.style-option:hover {
+    border-color: var(--secondary-color);
+    background: rgba(78, 205, 196, 0.1);
+    transform: translateY(-2px);
+}
+
+.style-option.selected {
+    border-color: var(--primary-color);
+    background: rgba(255, 107, 107, 0.2);
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+}
+
+.style-preview {
+    width: 100%;
+    height: 50px;
+    border-radius: 8px 8px 0 0;
+    filter: none !important;
+}
+
+.style-option {
+    filter: none !important;
+}
+
+.style-option .style-name {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    padding: 8px 4px;
+}
+
+.settings-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--light-text);
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--glass-border);
+    transition: 0.3s;
+    border-radius: 28px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--primary-color);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     #title {
@@ -882,4 +1028,100 @@ body {
         padding: 14px 40px;
         font-size: 18px;
     }
+}
+
+/* UI风格样式 */
+#ui.style-toon, #actionButtons.style-toon, #settingsModal.style-toon {
+    filter: contrast(1.4) saturate(1.6) brightness(1.1);
+}
+
+#ui.style-toon #title, 
+#ui.style-toon .game-button,
+#ui.style-toon .action-btn {
+    text-shadow: 0 0 15px var(--glow-primary), 0 0 30px var(--glow-primary), 0 2px 4px rgba(0,0,0,0.5);
+}
+
+#ui.style-cel, #actionButtons.style-cel, #settingsModal.style-cel {
+    filter: contrast(1.3) saturate(1.4);
+}
+
+#ui.style-cel .game-button,
+#ui.style-cel .action-btn {
+    border-width: 3px;
+}
+
+#ui.style-sketch, #actionButtons.style-sketch, #settingsModal.style-sketch {
+    filter: sepia(0.3) contrast(1.2) brightness(1.05);
+}
+
+#ui.style-sketch #title,
+#ui.style-sketch .game-button,
+#ui.style-sketch .action-btn {
+    font-weight: 900;
+    color: #2d2d2d;
+    text-shadow: none;
+}
+
+#ui.style-sketch2, #actionButtons.style-sketch2, #settingsModal.style-sketch2 {
+    filter: sepia(0.4) contrast(1.3) brightness(1.1);
+}
+
+#ui.style-sketch2 #title,
+#ui.style-sketch2 .game-button,
+#ui.style-sketch2 .action-btn {
+    font-family: 'Courier New', monospace;
+    color: #333;
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #000;
+}
+
+#ui.style-cyberpunk, #actionButtons.style-cyberpunk, #settingsModal.style-cyberpunk {
+    filter: contrast(1.5) saturate(1.8) brightness(1.2);
+}
+
+#ui.style-cyberpunk #title,
+#ui.style-cyberpunk .game-button,
+#ui.style-cyberpunk .action-btn {
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(255, 0, 255, 0.6), 0 0 60px rgba(0, 255, 255, 0.4);
+    color: #0fffff;
+}
+
+#ui.style-cyberpunk .game-button {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: #0fffff;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+#ui.style-sepia, #actionButtons.style-sepia, #settingsModal.style-sepia {
+    filter: sepia(0.7) contrast(1.2) brightness(1.05);
+}
+
+#ui.style-sepia #title,
+#ui.style-sepia .game-button,
+#ui.style-sepia .action-btn {
+    color: #8B4513;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+#ui.style-neon, #actionButtons.style-neon, #settingsModal.style-neon {
+    filter: contrast(1.4) saturate(1.6) brightness(1.3);
+}
+
+#ui.style-neon #title,
+#ui.style-neon .game-button,
+#ui.style-neon .action-btn {
+    text-shadow: 0 0 20px rgba(0, 255, 200, 1), 0 0 40px rgba(0, 255, 200, 0.8), 0 0 60px rgba(0, 255, 200, 0.6);
+    color: #0fffc8;
+}
+
+#ui.style-neon .game-button {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: #0fffc8;
+}
+
+#ui.style-invert, #actionButtons.style-invert, #settingsModal.style-invert {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+#ui.style-grayscale, #actionButtons.style-grayscale, #settingsModal.style-grayscale {
+    filter: grayscale(1) contrast(1.1);
 }

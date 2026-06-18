@@ -27,6 +27,24 @@ class MainScene {
         this.leaderboardManager = new LeaderboardManager();
         this.bindGithubEvents();
         this.bindChangelogEvents();
+        this.bindGestureToggleEvents();
+        this.bindSettingsEvents();
+    }
+
+    // 绑定手势模式开关事件
+    bindGestureToggleEvents() {
+        const btn = document.getElementById('gestureToggleBtn');
+        if (!btn) return;
+        
+        btn.addEventListener('click', () => {
+            const isGestureMode = this.game.toggleGestureMode();
+            const toast = document.getElementById('toastMessage');
+            if (toast) {
+                toast.textContent = isGestureMode ? '🤏 手势模式已开启' : '🤏 手势模式已关闭';
+                toast.className = 'toast-message active info';
+                setTimeout(() => toast.classList.remove('active'), 2000);
+            }
+        });
     }
 
     // 绑定 GitHub 按钮事件
@@ -96,6 +114,87 @@ class MainScene {
 
         closeBtn.addEventListener('click', () => {
             modal.classList.remove('active');
+        });
+    }
+
+    bindSettingsEvents() {
+        const btn = document.getElementById('settingsBtn');
+        const modal = document.getElementById('settingsModal');
+        const closeBtn = document.getElementById('closeSettings');
+        const styleSelector = document.getElementById('styleSelector');
+        const gestureToggle = document.getElementById('gestureToggle');
+
+        if (!btn || !modal || !closeBtn) return;
+
+        import('../shaders/style-manager.js').then(({ styleManager }) => {
+            styleSelector.innerHTML = '';
+            
+            const styles = styleManager.getAvailableStyles();
+            
+            styles.forEach(style => {
+                const option = document.createElement('div');
+                option.className = `style-option ${style.id === styleManager.currentStyle ? 'selected' : ''}`;
+                option.dataset.style = style.id;
+                
+                const preview = document.createElement('div');
+                preview.className = 'style-preview';
+                const config = styleManager.getStyleConfig(style.id);
+                if (config && config.preview) {
+                    preview.style.background = config.preview;
+                } else {
+                    preview.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }
+                
+                const label = document.createElement('span');
+                label.className = 'style-name';
+                label.textContent = style.name;
+                
+                option.appendChild(preview);
+                option.appendChild(label);
+                
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.style-option').forEach(el => el.classList.remove('selected'));
+                    option.classList.add('selected');
+                    styleManager.setStyle(style.id);
+                    const toast = document.getElementById('toastMessage');
+                    if (toast) {
+                        toast.textContent = `已切换至${style.name}风格`;
+                        toast.className = 'toast-message active success';
+                        setTimeout(() => toast.classList.remove('active'), 2000);
+                    }
+                });
+                styleSelector.appendChild(option);
+            });
+        });
+
+        if (gestureToggle) {
+            gestureToggle.checked = this.game.isGestureMode;
+            const toggleHandler = (e) => {
+                const isGestureMode = e.target.checked;
+                this.game.setGestureMode(isGestureMode);
+                const toast = document.getElementById('toastMessage');
+                if (toast) {
+                    toast.textContent = isGestureMode ? '手势模式已开启' : '手势模式已关闭';
+                    toast.className = 'toast-message active info';
+                    setTimeout(() => toast.classList.remove('active'), 2000);
+                }
+            };
+            gestureToggle.removeEventListener('change', toggleHandler);
+            gestureToggle.addEventListener('change', toggleHandler);
+        }
+
+        btn.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
         });
     }
 
@@ -251,6 +350,7 @@ class MainScene {
     }
 
     createPortal() {
+        // 跑酷游戏 Portal
         this.portal = new Portal(this.scene, new THREE.Vector3(20, MainScene.GROUND_Y, 20), () => {
             this.game.enterRunGame();
         });
@@ -286,6 +386,7 @@ class MainScene {
                 this.portal.onEnter();
             }
         }
+
     }
 
     onResize() {

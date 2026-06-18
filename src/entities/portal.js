@@ -3,12 +3,15 @@ import * as THREE from 'three';
  * MainScene中的Portal
  */
 class Portal {
-    constructor(scene, position, onEnter) {
+    constructor(scene, position, onEnter, color = 0x00ffff, label = 'RUN!') {
         this.scene = scene;
         this.position = position;
         this.onEnter = onEnter;
+        this.color = color;
+        this.label = label;
         this.mesh = null;
         this.textSprite = null;
+        this.ring = null;
         this.isActive = true;
         
         this.createPortal();
@@ -17,7 +20,7 @@ class Portal {
     createPortal() {
         const geometry = new THREE.CylinderGeometry(1.5, 1.5, 3, 32);
         const material = new THREE.MeshBasicMaterial({ 
-            color: 0x00ffff,
+            color: this.color,
             transparent: true,
             opacity: 0.8,
             side: THREE.DoubleSide
@@ -33,10 +36,10 @@ class Portal {
             opacity: 0.6,
             side: THREE.DoubleSide
         });
-        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.set(this.position.x, this.position.y + 3, this.position.z);
-        this.scene.add(ring);
+        this.ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        this.ring.rotation.x = -Math.PI / 2;
+        this.ring.position.set(this.position.x, this.position.y + 3, this.position.z);
+        this.scene.add(this.ring);
         
         const canvas = document.createElement('canvas');
         canvas.width = 256;
@@ -52,7 +55,7 @@ class Portal {
         ctx.font = 'bold 48px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('RUN!', canvas.width / 2, canvas.height / 2);
+        ctx.fillText(this.label, canvas.width / 2, canvas.height / 2);
         
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
@@ -88,17 +91,24 @@ class Portal {
         this.isActive = true;
         this.mesh.visible = true;
         this.textSprite.visible = true;
+        if (this.ring) this.ring.visible = true;
     }
     
     deactivate() {
         this.isActive = false;
         this.mesh.visible = false;
         this.textSprite.visible = false;
+        if (this.ring) this.ring.visible = false;
     }
     
     destroy() {
         this.scene.remove(this.mesh);
         this.scene.remove(this.textSprite);
+        if (this.ring) {
+            this.scene.remove(this.ring);
+            this.ring.geometry.dispose();
+            this.ring.material.dispose();
+        }
         this.mesh.geometry.dispose();
         this.mesh.material.dispose();
     }
