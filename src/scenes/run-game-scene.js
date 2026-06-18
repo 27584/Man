@@ -68,6 +68,9 @@ class RunGameScene {
         // 语音识别
         this.recognition = null;
         this.isListening = false;
+        this.isPermissionDenied = false;
+        this.listenRetryCount = 0;
+        this.hasAskedPermission = false;
         
         // 显示加载 UI
         this.showLoadingUI();
@@ -213,6 +216,9 @@ class RunGameScene {
             if (!this.ultimateWasReady) {
                 this.ultimateWasReady = true;
                 this.showToast('大招已就绪!喊"MAN"释放!', 'success');
+                if (this.isMobile()) {
+                    this.startListening();
+                }
             }
         } else {
             this.ultimateBarFill.style.background = 'linear-gradient(90deg, #ff6b6b, #ffd93d)';
@@ -261,28 +267,51 @@ class RunGameScene {
         };
         
         this.recognition.onerror = (event) => {
-            if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                console.log('语音识别错误:', event.error);
+            console.log('语音识别错误:', event.error);
+            if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+                this.isPermissionDenied = true;
+                this.showToast('麦克风权限已被拒绝', 'error');
             }
         };
         
         this.recognition.onend = () => {
             this.isListening = false;
-            if (!this.isGameOver && this.player) {
-                setTimeout(() => this.startListening(), 500);
+            if (!this.isGameOver && !this.isPermissionDenied && this.player && !this.isMobile()) {
+                this.scheduleNextListening();
             }
         };
         
-        this.startListening();
+        if (!this.isMobile()) {
+            this.startListening();
+        }
+    }
+    
+    scheduleNextListening() {
+        if (this.isGameOver || this.isPermissionDenied) return;
+        
+        const retryDelay = Math.min(1000 + this.listenRetryCount * 500, 5000);
+        setTimeout(() => {
+            if (!this.isGameOver && !this.isPermissionDenied && this.player) {
+                this.startListening();
+            }
+        }, retryDelay);
     }
     
     startListening() {
+        if (this.isPermissionDenied) return;
         if (this.recognition && !this.isListening && !this.isGameOver) {
             try {
                 this.recognition.start();
                 this.isListening = true;
+                this.listenRetryCount = 0;
+                this.hasAskedPermission = true;
             } catch (e) {
-                console.log('语音识别启动失败');
+                console.log('语音识别启动失败:', e);
+                this.listenRetryCount++;
+                if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                    this.isPermissionDenied = true;
+                    this.showToast('麦克风权限已被拒绝', 'error');
+                }
             }
         }
     }
