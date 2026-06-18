@@ -1,6 +1,12 @@
 export const VERSION_DATA = {
-    version: "v1.2.1",
-    changelog: [     {
+    version: "v1.2.2",
+    changelog: [  {
+            version: "v1.2.2",
+            date: "2026-06-18",
+            changes: [
+                "修复移动端语音识别无效的问题"
+            ]
+        },   {
             version: "v1.2.1",
             date: "2026-06-18",
             changes: [
