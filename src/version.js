@@ -1,10 +1,12 @@
 export const VERSION_DATA = {
-    version: "v1.2.0",
+    version: "v1.2.1",
     changelog: [     {
-            version: "v1.2.0",
+            version: "v1.2.1",
             date: "2026-06-18",
             changes: [
+                "新增大招，进度条满后大喊man!释放无敌大招（需要麦克风权限）。",
                 "新增设置，画面风格选项，手势模式",
+                "新增移动端主界面旋转人物",
                 "修复若干Bug"
             ]
         },

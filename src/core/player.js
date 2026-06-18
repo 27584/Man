@@ -34,6 +34,9 @@ class Player {
         this.attackDuration = 0;
 
         this.keys = {};
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.isTouching = false;
         this.setupInputListeners();
     }
 
@@ -64,6 +67,30 @@ class Player {
             if (e.button === 0 && this.isGrounded) {
                 this.performAttack();
             }
+        });
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                this.touchStartX = touch.clientX;
+                this.touchStartY = touch.clientY;
+                this.isTouching = true;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!this.isTouching || !this.mesh) return;
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - this.touchStartX;
+                const rotationSpeed = 0.05;
+                this.mesh.rotation.y += deltaX * rotationSpeed;
+                this.touchStartX = touch.clientX;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            this.isTouching = false;
         });
     }
 

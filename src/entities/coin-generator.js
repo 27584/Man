@@ -61,6 +61,9 @@ class CoinGenerator {
     updateCoins(deltaTime) {
         if (this.scene.isGameOver) return;
         
+        const player = this.scene.player;
+        const isUltimateActive = player && player.isUltimateActive;
+        
         this.coins = this.coins.filter((coin) => {
             if (coin.position.z < this.scene.playerZ - 25) {
                 this.scene.scene.remove(coin);
@@ -74,21 +77,30 @@ class CoinGenerator {
             coin.userData.rotationAngle += deltaTime * 3;
             coin.rotation.y = coin.userData.rotationAngle;
             
-            const player = this.scene.player;
             if (!player || !player.model) return true;
             
             const playerPos = player.model.position;
             const coinPos = coin.position;
             
             if (!coin.userData.collected) {
-                const dx = Math.abs(playerPos.x - coinPos.x);
-                const dz = Math.abs(coinPos.z - playerPos.z);
-                
-                if (dx < 1.2 && dz < 2.0) {
-                    const isHighCoin = coin.userData.isHigh;
-                    const isPlayerJumping = player.isCrossing;
+                // 大招期间吸引所有coin
+                if (isUltimateActive) {
+                    const dx = playerPos.x - coinPos.x;
+                    const dz = playerPos.z - coinPos.z;
+                    const dy = playerPos.y - coinPos.y;
                     
-                    if ((!isHighCoin && !isPlayerJumping) || (isHighCoin && isPlayerJumping)) {
+                    // 吸引速度（必须高于玩家4倍速以保证追上）
+                    const attractSpeed = 150 * deltaTime;
+                    const dist = Math.sqrt(dx * dx + dz * dz + dy * dy);
+                    
+                    if (dist > 0.1) {
+                        coin.position.x += (dx / dist) * attractSpeed;
+                        coin.position.z += (dz / dist) * attractSpeed;
+                        coin.position.y += (dy / dist) * attractSpeed;
+                    }
+                    
+                    // 当coin足够接近玩家时直接吸附到玩家位置并收集
+                    if (dist < 4) {
                         coin.userData.collected = true;
                         this.scene.score += 1;
                         this.scene.updateScore();
@@ -98,6 +110,26 @@ class CoinGenerator {
                             if (child.material) child.material.dispose();
                         });
                         return false;
+                    }
+                } else {
+                    const dx = Math.abs(playerPos.x - coinPos.x);
+                    const dz = Math.abs(coinPos.z - playerPos.z);
+                    
+                    if (dx < 1.2 && dz < 2.0) {
+                        const isHighCoin = coin.userData.isHigh;
+                        const isPlayerJumping = player.isCrossing;
+                        
+                        if ((!isHighCoin && !isPlayerJumping) || (isHighCoin && isPlayerJumping)) {
+                            coin.userData.collected = true;
+                            this.scene.score += 1;
+                            this.scene.updateScore();
+                            this.scene.scene.remove(coin);
+                            coin.children.forEach((child) => {
+                                if (child.geometry) child.geometry.dispose();
+                                if (child.material) child.material.dispose();
+                            });
+                            return false;
+                        }
                     }
                 }
             }

@@ -19,6 +19,7 @@ class RunGameScene {
         this.gameSpeed = 12;
         this.score = 0;
         this.isGameOver = false;
+        this.ultimateWasReady = false;
         
         this.TRACK_WIDTH = 2.5;
         this.NUM_TRACKS = 3;
@@ -58,6 +59,15 @@ class RunGameScene {
         // 手势模式
         this.useGestureMode = useGestureMode;
         this.gestureService = null;
+        
+        // 大招进度条UI
+        this.ultimateBar = null;
+        this.ultimateBarFill = null;
+        this.ultimateText = null;
+        
+        // 语音识别
+        this.recognition = null;
+        this.isListening = false;
         
         // 显示加载 UI
         this.showLoadingUI();
@@ -138,6 +148,148 @@ class RunGameScene {
         const loading = document.getElementById('runGameLoading');
         if (loading) {
             loading.classList.remove('active');
+        }
+        this.createUltimateBar();
+        this.initVoiceRecognition();
+    }
+    
+    // 创建大招进度条UI
+    createUltimateBar() {
+        this.ultimateBar = document.createElement('div');
+        this.ultimateBar.id = 'ultimateBar';
+        this.ultimateBar.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #ff6b6b;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 200;
+        `;
+        
+        this.ultimateBarFill = document.createElement('div');
+        this.ultimateBarFill.id = 'ultimateBarFill';
+        this.ultimateBarFill.style.cssText = `
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            transition: width 0.1s ease;
+            border-radius: 8px;
+        `;
+        
+        this.ultimateText = document.createElement('div');
+        this.ultimateText.id = 'ultimateText';
+        this.ultimateText.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        `;
+        this.ultimateText.textContent = 'MAN!';
+        
+        this.ultimateBar.appendChild(this.ultimateBarFill);
+        this.ultimateBar.appendChild(this.ultimateText);
+        document.body.appendChild(this.ultimateBar);
+    }
+    
+    updateUltimateBar(progress, maxProgress, isReady) {
+        if (!this.ultimateBarFill || !this.ultimateText) return;
+        
+        const percent = Math.min(100, (progress / maxProgress) * 100);
+        this.ultimateBarFill.style.width = percent + '%';
+        
+        if (isReady) {
+            this.ultimateBarFill.style.background = 'linear-gradient(90deg, #00ff00, #ffff00)';
+            this.ultimateText.textContent = '喊"MAN"释放!';
+            this.ultimateBarFill.style.animation = 'ultimatePulse 0.5s ease infinite';
+            if (!this.ultimateWasReady) {
+                this.ultimateWasReady = true;
+                this.showToast('🔥 大招已就绪!喊"MAN"释放!', 'success');
+            }
+        } else {
+            this.ultimateBarFill.style.background = 'linear-gradient(90deg, #ff6b6b, #ffd93d)';
+            this.ultimateText.textContent = 'MAN!';
+            this.ultimateBarFill.style.animation = 'none';
+            this.ultimateWasReady = false;
+        }
+    }
+    
+    hideUltimateBar() {
+        if (this.ultimateBar) {
+            this.ultimateBar.style.display = 'none';
+        }
+    }
+    
+    showUltimateBar() {
+        if (this.ultimateBar) {
+            this.ultimateBar.style.display = 'block';
+        }
+    }
+    
+    // 初始化语音识别
+    initVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.log('语音识别不支持');
+            return;
+        }
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'zh-CN';
+        
+        this.recognition.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.toLowerCase();
+                if (transcript.includes('man') || transcript.includes('曼') || transcript.includes('满')) {
+                    if (this.player && this.player.isUltimateReady()) {
+                        this.player.activateUltimate();
+                        this.showToast('MAN! 大招释放!', 'success');
+                    }
+                }
+            }
+        };
+        
+        this.recognition.onerror = (event) => {
+            if (event.error !== 'no-speech') {
+                console.log('语音识别错误:', event.error);
+            }
+        };
+        
+        this.recognition.onend = () => {
+            this.isListening = false;
+            if (!this.isGameOver && this.player) {
+                setTimeout(() => this.startListening(), 1000);
+            }
+        };
+        
+        this.startListening();
+    }
+    
+    startListening() {
+        if (this.recognition && !this.isListening && !this.isGameOver) {
+            try {
+                this.recognition.start();
+                this.isListening = true;
+            } catch (e) {
+                console.log('语音识别启动失败');
+            }
+        }
+    }
+    
+    stopListening() {
+        if (this.recognition && this.isListening) {
+            this.recognition.stop();
+            this.isListening = false;
         }
     }
 
@@ -352,7 +504,8 @@ class RunGameScene {
         
         if (this.isGameOver) return;
         
-        this.playerZ += this.gameSpeed * dt;
+        const ultimateSpeedBoost = (this.player && this.player.isUltimateActive) ? 4 : 1;
+        this.playerZ += this.gameSpeed * dt * ultimateSpeedBoost;
         
         if (this.environmentGenerator) {
             this.environmentGenerator.updateInfiniteWorld(this.playerZ);
@@ -372,6 +525,9 @@ class RunGameScene {
         if (this.player) {
             const result = this.player.update(dt, this.gameSpeed, this.playerZ, this.isGameOver);
             
+            // 更新大招进度条
+            this.updateUltimateBar(this.player.ultimateProgress, this.player.ultimateMaxProgress, this.player.isUltimateReady());
+            
             if (result.boostDistance > 0) {
                 this.playerZ += result.boostDistance;
             }
@@ -381,7 +537,10 @@ class RunGameScene {
             if (playerPos && this.camera && !this.isGameOver) {
                 const camTargetX = playerPos.x;
                 const camTargetZ = playerPos.z - 8;
+                const ultimateCameraLift = this.player.isUltimateActive ? 5 : 0;
+                const camTargetY = 5 + ultimateCameraLift;
                 this.camera.position.x += (camTargetX - this.camera.position.x) * 8 * dt;
+                this.camera.position.y += (camTargetY - this.camera.position.y) * 5 * dt;
                 this.camera.position.z += (camTargetZ - this.camera.position.z) * 8 * dt;
                 this.camera.lookAt(playerPos.x, playerPos.y + 1, playerPos.z + 10);
                 
@@ -525,6 +684,8 @@ class RunGameScene {
         
         this.isGameOver = true;
         this.hideHUD();
+        this.hideUltimateBar();
+        this.stopListening();
         
         this.playAudio('assets/audio/manba-out.mp3');
 
@@ -606,6 +767,12 @@ class RunGameScene {
         if (this.gestureService) {
             this.gestureService.destroy();
             this.gestureService = null;
+        }
+        
+        this.stopListening();
+        if (this.ultimateBar) {
+            this.ultimateBar.remove();
+            this.ultimateBar = null;
         }
 
         // 隐藏上传按钮

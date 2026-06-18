@@ -38,12 +38,36 @@ class Player {
         this.touchStartTime = 0;
         this.lastTapTime = 0;
         
+        // 大招系统
+        this.ultimateProgress = 0;
+        this.ultimateMaxProgress = 40;
+        this.isUltimateActive = false;
+        this.ultimateDuration = 5;
+        this.ultimateElapsed = 0;
+        this.isInvincible = false;
+        this.ultimateRotationSpeed = 0;
+        this.originalY = 0.8;
+        this.postUltimateInvincibleDuration = 2;
+        this.postUltimateInvincibleElapsed = 0;
+        
         this.setupInputListeners();
     }
     
     setupInputListeners() {
         this._onKeyDown = (e) => {
             if (!this.scene || this.scene.isGameOver || (this.scene.cgManager && this.scene.cgManager.isPlaying())) {
+                return;
+            }
+            
+            if (this.isUltimateActive) {
+                if (e.code === 'KeyQ') {
+                    e.preventDefault();
+                    this.ultimateProgress = this.ultimateMaxProgress;
+                    const activated = this.activateUltimate();
+                    if (this.scene && this.scene.showToast) {
+                        this.scene.showToast(activated ? 'Debug: 大招已释放!' : 'Debug: 大招激活失败', 'success');
+                    }
+                }
                 return;
             }
             
@@ -84,6 +108,8 @@ class Player {
             if (!this.scene || this.scene.isGameOver || (this.scene.cgManager && this.scene.cgManager.isPlaying())) {
                 return;
             }
+            
+            if (this.isUltimateActive) return;
             
             const touch = e.touches[0];
             this.touchStartX = touch.clientX;
@@ -347,6 +373,92 @@ class Player {
         return boostDistance;
     }
     
+    activateUltimate() {
+        if (this.ultimateProgress < this.ultimateMaxProgress || this.isUltimateActive) {
+            return false;
+        }
+        
+        this.isUltimateActive = true;
+        this.ultimateElapsed = 0;
+        this.ultimateProgress = 0;
+        this.isInvincible = true;
+        this.ultimateRotationSpeed = 0;
+        this.originalY = this.model ? this.model.position.y : 0.8;
+        
+        // 强制移动到中间赛道
+        this.targetTrack = 1;
+        this.isCrossing = false;
+        this.isSliding = false;
+        this.isSprinting = false;
+        
+        // 停止其他动画
+        if (this.animations) {
+            if (this.animations['sprint']) this.animations['sprint'].stop();
+            if (this.animations['cross']) this.animations['cross'].stop();
+            if (this.animations['sliding_tackle']) this.animations['sliding_tackle'].stop();
+        }
+        
+        return true;
+    }
+    
+    updateUltimate(deltaTime) {
+        // 大招结束后的额外无敌时间
+        if (!this.isUltimateActive && this.postUltimateInvincibleElapsed < this.postUltimateInvincibleDuration) {
+            this.postUltimateInvincibleElapsed += deltaTime;
+            this.isInvincible = true;
+            if (this.postUltimateInvincibleElapsed >= this.postUltimateInvincibleDuration) {
+                this.isInvincible = false;
+            }
+        } else if (!this.isUltimateActive && this.isInvincible) {
+            this.isInvincible = false;
+        }
+        
+        if (!this.isUltimateActive) {
+            // 积累进度
+            if (this.ultimateProgress < this.ultimateMaxProgress) {
+                this.ultimateProgress += deltaTime;
+            }
+            return 0;
+        }
+        
+        this.ultimateElapsed += deltaTime;
+        
+        // 旋转速度逐渐增加然后保持
+        if (this.ultimateRotationSpeed < 25) {
+            this.ultimateRotationSpeed = Math.min(25, this.ultimateRotationSpeed + deltaTime * 30);
+        }
+        
+        // 大招期间飞起来（更高）
+        if (this.model) {
+            const targetY = 7;
+            this.model.position.y += (targetY - this.model.position.y) * 3 * deltaTime;
+            this.model.rotation.y += this.ultimateRotationSpeed * deltaTime;
+        }
+        
+        // 大招结束
+        if (this.ultimateElapsed >= this.ultimateDuration) {
+            this.isUltimateActive = false;
+            this.ultimateRotationSpeed = 0;
+            this.postUltimateInvincibleElapsed = 0;
+            this.isInvincible = true;
+            if (this.model) {
+                this.model.rotation.y = 0;
+                this.model.position.y = 0.8;
+            }
+            // 恢复sprint动画
+            if (this.animations && this.animations['sprint']) {
+                this.animations['sprint'].reset();
+                this.animations['sprint'].play();
+            }
+        }
+        
+        return this.ultimateDuration - this.ultimateElapsed;
+    }
+    
+    isUltimateReady() {
+        return this.ultimateProgress >= this.ultimateMaxProgress && !this.isUltimateActive;
+    }
+    
     update(deltaTime, gameSpeed, playerZ, isGameOver) {
         if (!this.model) return { position: null, boostDistance: 0 };
         
@@ -363,6 +475,19 @@ class Player {
         if (isGameOver) return { position: this.model.position, boostDistance };
         
         const targetX = (this.targetTrack - 1) * this.TRACK_WIDTH;
+        
+        // 大招期间只更新位置但不受其他动作影响
+        if (this.isUltimateActive) {
+            this.targetTrack = 1;
+            this.updateUltimate(deltaTime);
+            const ultimateTargetX = 0;
+            this.model.position.x += (ultimateTargetX - this.model.position.x) * 12 * deltaTime;
+            this.model.position.z = playerZ + boostDistance;
+            return { position: this.model.position, boostDistance };
+        }
+        
+        this.updateUltimate(deltaTime);
+        
         this.model.position.x += (targetX - this.model.position.x) * 12 * deltaTime;
         this.model.position.z = playerZ + boostDistance;
         
@@ -419,6 +544,7 @@ class Player {
     reset() {
         if (this.model) {
             this.model.position.set(0, 0.8, 0);
+            this.model.rotation.y = 0;
         }
         this.isCrossing = false;
         this.isSliding = false;
@@ -427,6 +553,14 @@ class Player {
         this.sprintCooldown = 0;
         this.sprintDuration = 0;
         this.landingGraceTimer = 0;
+        
+        // 重置大招系统
+        this.ultimateProgress = 0;
+        this.isUltimateActive = false;
+        this.ultimateElapsed = 0;
+        this.isInvincible = false;
+        this.ultimateRotationSpeed = 0;
+        this.postUltimateInvincibleElapsed = 0;
     }
     
     playGameOverAnimation() {

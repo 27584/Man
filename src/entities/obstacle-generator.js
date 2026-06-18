@@ -379,6 +379,11 @@ class ObstacleGenerator {
         
         if (dz > 1.2) return false;
         
+        // 大招期间无敌
+        if (player.isInvincible) {
+            return false;
+        }
+        
         let collisionRangeX = 1.1;
         if (obstacle.userData.type === 'full') {
             collisionRangeX = 1.2;
