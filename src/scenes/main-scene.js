@@ -40,7 +40,7 @@ class MainScene {
             const isGestureMode = this.game.toggleGestureMode();
             const toast = document.getElementById('toastMessage');
             if (toast) {
-                toast.textContent = isGestureMode ? '🤏 手势模式已开启' : '🤏 手势模式已关闭';
+                toast.textContent = isGestureMode ? '手势模式已开启' : '手势模式已关闭';
                 toast.className = 'toast-message active info';
                 setTimeout(() => toast.classList.remove('active'), 2000);
             }

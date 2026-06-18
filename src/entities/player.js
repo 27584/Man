@@ -38,9 +38,9 @@ class Player {
         this.touchStartTime = 0;
         this.lastTapTime = 0;
         
-        // 大招系统
+        // 大招
         this.ultimateProgress = 0;
-        this.ultimateMaxProgress = 40;
+        this.ultimateMaxProgress = 10;
         this.isUltimateActive = false;
         this.ultimateDuration = 5;
         this.ultimateElapsed = 0;
