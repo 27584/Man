@@ -212,7 +212,7 @@ class RunGameScene {
             this.ultimateBarFill.style.animation = 'ultimatePulse 0.5s ease infinite';
             if (!this.ultimateWasReady) {
                 this.ultimateWasReady = true;
-                this.showToast('🔥 大招已就绪!喊"MAN"释放!', 'success');
+                this.showToast('大招已就绪!喊"MAN"释放!', 'success');
             }
         } else {
             this.ultimateBarFill.style.background = 'linear-gradient(90deg, #ff6b6b, #ffd93d)';
@@ -243,24 +243,24 @@ class RunGameScene {
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
-        this.recognition.continuous = true;
+        this.recognition.continuous = false;
         this.recognition.interimResults = false;
+        this.recognition.maxAlternatives = 1;
+        
         this.recognition.lang = 'zh-CN';
         
         this.recognition.onresult = (event) => {
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.toLowerCase();
-                if (transcript.includes('man') || transcript.includes('曼') || transcript.includes('满')) {
-                    if (this.player && this.player.isUltimateReady()) {
-                        this.player.activateUltimate();
-                        this.showToast('MAN! 大招释放!', 'success');
-                    }
+            const transcript = event.results[0][0].transcript.toLowerCase();
+            if (transcript.includes('man') || transcript.includes('曼') || transcript.includes('满') || transcript.includes('慢')) {
+                if (this.player && this.player.isUltimateReady()) {
+                    this.player.activateUltimate();
+                    this.showToast('MAN!', 'success');
                 }
             }
         };
         
         this.recognition.onerror = (event) => {
-            if (event.error !== 'no-speech') {
+            if (event.error !== 'no-speech' && event.error !== 'aborted') {
                 console.log('语音识别错误:', event.error);
             }
         };
@@ -268,7 +268,7 @@ class RunGameScene {
         this.recognition.onend = () => {
             this.isListening = false;
             if (!this.isGameOver && this.player) {
-                setTimeout(() => this.startListening(), 1000);
+                setTimeout(() => this.startListening(), 500);
             }
         };
         
