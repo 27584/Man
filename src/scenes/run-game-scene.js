@@ -251,10 +251,11 @@ class RunGameScene {
         
         this.recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
+            this.showToast(transcript, 'success');
             if (transcript.includes('man') || transcript.includes('曼') || transcript.includes('满') || transcript.includes('慢')) {
+                
                 if (this.player && this.player.isUltimateReady()) {
                     this.player.activateUltimate();
-                    this.showToast('MAN!', 'success');
                 }
             }
         };

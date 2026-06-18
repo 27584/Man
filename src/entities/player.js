@@ -40,7 +40,7 @@ class Player {
         
         // 大招
         this.ultimateProgress = 0;
-        this.ultimateMaxProgress = 10;
+        this.ultimateMaxProgress = 1;
         this.isUltimateActive = false;
         this.ultimateDuration = 5;
         this.ultimateElapsed = 0;
