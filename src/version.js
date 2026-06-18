@@ -4,7 +4,7 @@ export const VERSION_DATA = {
             version: "v1.2.2",
             date: "2026-06-18",
             changes: [
-                "修复移动端语音识别无效的问题"
+                "新增移动端长按释放大招"
             ]
         },   {
             version: "v1.2.1",

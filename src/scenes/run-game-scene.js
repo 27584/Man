@@ -73,6 +73,11 @@ class RunGameScene {
         this.hasAskedPermission = false;
         this.isRequestingPermission = false;
         
+        // 长按屏幕释放大招（仅移动端）
+        this.isLongPressActive = false;
+        this.longPressStartTime = 0;
+        this.LONG_PRESS_DURATION = 1300;
+        
         // 显示加载 UI
         this.showLoadingUI();
     }
@@ -493,6 +498,45 @@ class RunGameScene {
         this.scoreElement.style.pointerEvents = 'none';
         this.scoreElement.textContent = ' 0';
         document.body.appendChild(this.scoreElement);
+        
+        this.initLongPressListener();
+    }
+    
+    initLongPressListener() {
+        if (!this.isMobile()) return;
+        
+        const handleStart = (e) => {
+            if (!this.player || !this.player.isUltimateReady() || this.isGameOver) return;
+            
+            this.isLongPressActive = true;
+            this.longPressStartTime = performance.now();
+            
+            this.checkLongPress();
+        };
+        
+        const handleEnd = () => {
+            this.isLongPressActive = false;
+        };
+        
+        document.addEventListener('touchstart', handleStart, { passive: true });
+        document.addEventListener('touchend', handleEnd);
+        document.addEventListener('touchcancel', handleEnd);
+    }
+    
+    checkLongPress() {
+        if (!this.isLongPressActive) return;
+        
+        const elapsed = performance.now() - this.longPressStartTime;
+        
+        if (elapsed >= this.LONG_PRESS_DURATION) {
+            if (this.player && this.player.isUltimateReady() && !this.isGameOver) {
+                this.player.activateUltimate();
+                this.isLongPressActive = false;
+            }
+            return;
+        }
+        
+        requestAnimationFrame(() => this.checkLongPress());
     }
     
     updateScore() {

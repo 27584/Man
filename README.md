@@ -1,4 +1,5 @@
 **穷玩车,富玩表,顶富就玩牢大快跑（bushi**
+
 Man! What can I say
 
 本项目为UCAS计科导作业,基于three.js开发
@@ -41,6 +42,4 @@ Man! What can I say
 并部署了一个Edge Function，用于处理排行榜数据的查询与更新。
 
 Edge Function的代码在scripts\score\_rank.ts中。
-
-<br />
 
